@@ -58,19 +58,16 @@ if not defined then
 
         IterateObjects(function(object, objectName, _)
             if UnitIsEnemy(object, player) and UnitCanAttack(player, object) == 1 then
-                if objectName == SharedConfiguration.Totems.TREMOR then
+                local tremor_totem = objectName == SharedConfiguration.Totems.TREMOR
+
+                if tremor_totem or
+                        objectName == SharedConfiguration.Totems.EARTHBIND or
+                        (objectName == SharedConfiguration.Totems.CLEANSING and priority_name ~= SharedConfiguration.Totems.EARTHBIND) or
+                        string.find(objectName, SharedConfiguration.Totems.TOTEM_OCCURENCE) ~= nil and priority == nil then
                     priority = object
                     priority_name = objectName
-                    return true
-                elseif objectName == SharedConfiguration.Totems.EARTHBIND then
-                    priority = object
-                    priority_name = objectName
-                elseif objectName == SharedConfiguration.Totems.CLEANSING and priority_name ~= SharedConfiguration.Totems.EARTHBIND then
-                    priority = object
-                    priority_name = objectName
-                elseif string.find(objectName, SharedConfiguration.Totems.TOTEM_OCCURENCE) ~= nil and priority == nil then
-                    priority = object
-                    priority_name = objectName
+
+                    return tremor_totem
                 end
             end
 
