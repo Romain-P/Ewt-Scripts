@@ -77,7 +77,10 @@ if not shared then shared = true
     MageSpells = {}
     WarlockSpells = {}
     ShamanSpells = {}
-    PaladinSpells = {}
+
+    PaladinSpells = {
+        REPENTENCE = 20066
+    }
 
     DkSpells = {
         HUNGERING_COLD = 49203
