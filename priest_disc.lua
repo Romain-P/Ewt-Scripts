@@ -80,6 +80,13 @@ if not defined then
             Cast(RaceSpells.SHOOT, priority, enemy)
         end
     end
+
+    -- SWD Scatter, Hungering cold, blind, gouge
+    ListenSpellsAndThen({HunterSpells.SCATTER, DkSpells.HUNGERING_COLD, RogueSpells.BLIND, RogueSpells.GOUGE},
+        function(event, srcName, targetGuid, targetName, spellId, object)
+            if targetName ~= player_name then return end
+            Cast(PriestSpells.SWD, object, enemy)
+        end)
 end
 
 if not enabled then

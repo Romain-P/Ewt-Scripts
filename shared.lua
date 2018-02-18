@@ -31,6 +31,7 @@ if not shared then shared = true
     enabled = false
 
     WorldObjects = {}
+    FrameCallbacks = {}
 
     Party = {
         "party1",
@@ -68,13 +69,19 @@ if not shared then shared = true
         SHOOT = 5019
     }
 
-    HunterSpells = {}
+    HunterSpells = {
+        SCATTER = 19503
+    }
+
     WarriorSpells = {}
     MageSpells = {}
     WarlockSpells = {}
     ShamanSpells = {}
     PaladinSpells = {}
-    DkSpells = {}
+
+    DkSpells = {
+        HUNGERING_COLD = 49203
+    }
 
     DruidSpells = {
         PROWL = 5215
@@ -83,6 +90,8 @@ if not shared then shared = true
     RogueSpells = {
         VANISH = 26889,
         STEALTH = 1784,
+        BLIND = 2084,
+        GOUGE = 1776
     }
 
     PriestSpells = {
@@ -320,6 +329,8 @@ if not shared then shared = true
                 HasAura(RaceSpells.SHADOWMELD, unit)
     end
 
+    -- Take a callback(object, name, position) that gonna be called iterating map objects.
+    -- Return true in the callback to break the loop, false otherwise
     function IterateObjects(callback)
         for i = 1, ObjectCount() do
             local object = ObjectWithIndex(i)
@@ -329,6 +340,13 @@ if not shared then shared = true
             if callback(object, name, position) then
                 break
             end
+        end
+    end
+
+    -- Listen spells and performs your callback(event, srcName, targetGuid, targetName, spellId) when one is fired
+    function ListenSpellsAndThen(spellList, callback)
+        for i=1, #spellList do
+            FrameCallbacks[spellList[i]] = callback;
         end
     end
 
@@ -343,14 +361,21 @@ if not shared then shared = true
                 do return end
             end
 
+            local object = WorldObjects[srcName]
+
             if spellId == RogueSpells.VANISH or
                     spellId == RogueSpells.STEALTH or
                     spellId == DruidSpells.PROWL or
                     spellId == RaceSpells.SHADOWMELD then
                 SpellStopCasting()
-                local found = WorldObjects[srcName]
-                Cast(Configuration.SPOT_SPELL, found, enemy)
+                Cast(Configuration.SPOT_SPELL, object, enemy)
                 TargetUnit(found)
+            end
+
+            for k,v in pairs(FrameCallbacks) do
+                if k == spellId then
+                    v(event, srcName, targetGuid, targetName, spellId, object)
+                end
             end
         end)
 
