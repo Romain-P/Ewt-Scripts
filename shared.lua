@@ -5,7 +5,6 @@ if not shared then shared = true
     SharedConfiguration = {
         melee_range = 7,
         gcd_value = 1.5,
-
         Totems = {
             TREMOR = "Tremor Totem",
             EARTHBIND = "Earthbind Totem",
@@ -17,9 +16,17 @@ if not shared then shared = true
     enemy = "enemy"
     ally = "ally"
     target = "target"
+    party1 = "party1"
+    party1pet = "party1pet"
+    party2 = "party2"
+    party2pet = "party2pet"
+    party3 = "party3"
+    party3pet = "party3pet"
     player = "player"
+    pet = "pet"
     player_name = UnitName(player)
     objectTimer = -1
+    analizeTimer = -1
     enabled = false
 
     WorldObjects = {}
@@ -59,6 +66,14 @@ if not shared then shared = true
         SHADOWMELD = 58984
     }
 
+    HunterSpells = {}
+    WarriorSpells = {}
+    MageSpells = {}
+    WarlockSpells = {}
+    ShamanSpells = {}
+    PaladinSpells = {}
+    DkSpells = {}
+
     DruidSpells = {
         PROWL = 5215
     }
@@ -69,12 +84,22 @@ if not shared then shared = true
     }
 
     PriestSpells = {
+        PENANCE = 53007,
+        FLASH_HEAL = 48071,
+        PRAYER_OF_MENDING = 48113,
+        RENEW = 48068,
+        SHIELD = 48066,
+        BINDING_HEAL = 48120,
         SWD = 48158
     }
 
     Auras = {
+        GRACE = 47930,
+        WEAKENED_SOUL = 6788,
+        PRAYER_OF_MENDING = 48111,
         DIVINE_SHIELD = 642,
         AURA_MASTERY = 31821,
+        RENEW = 48068,
         HAND_PROTECTION = 10278,
         BURNING_DETERMINATION = 54748,
         OVERPOWER_PROC = 60503,
@@ -123,6 +148,49 @@ if not shared then shared = true
         MAGIC_SHIELD = 48707
     }
 
+    function TableConcat(t1, t2)
+        for k, v in pairs(t2) do
+            t1[k] = v
+        end
+        return t1
+    end
+
+    Spells = {}
+    SpellNames = {}
+    SpellIds = {}
+
+    TableConcat(Spells, PriestSpells)
+    TableConcat(Spells, RogueSpells)
+    TableConcat(Spells, DruidSpells)
+    TableConcat(Spells, HunterSpells)
+    TableConcat(Spells, WarriorSpells)
+    TableConcat(Spells, MageSpells)
+    TableConcat(Spells, WarlockSpells)
+    TableConcat(Spells, ShamanSpells)
+    TableConcat(Spells, PaladinSpells)
+    TableConcat(Spells, DkSpells)
+    TableConcat(Spells, RaceSpells)
+
+
+    function HoldSpells(table)
+        local var
+        for _, v in pairs(table) do
+            var = select(1, GetSpellInfo(v))
+            if var ~= nil then
+                SpellNames[v] = var
+                SpellIds[strlower(var)] = v
+            end
+        end
+    end
+
+    HoldSpells(Spells)
+    HoldSpells(Auras)
+
+    -- Returns the spell id of a given spell name
+    function GetSpellId(spellname)
+        return SpellIds[strlower(spellname)]
+    end
+
     -- Return true if the player is playing in Arena
     function IsArena()
         return select(1, IsActiveBattlefieldArena()) == 1
@@ -134,6 +202,19 @@ if not shared then shared = true
             return ArenaEnemies
         else
             return WorldEnemies
+        end
+    end
+
+    -- Return true if unit is in los with otherunit
+    function InLos(unit, otherUnit)
+        if not otherUnit then otherUnit = player end
+        if not UnitExists(otherUnit) then return end
+
+        if UnitIsVisible(unit) or 1 == 1 then
+            local X1, Y1, Z1 = ObjectPosition(unit);
+            local X2, Y2, Z2 = ObjectPosition(otherUnit);
+
+            return not TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2, 0x10);
         end
     end
 
@@ -163,9 +244,11 @@ if not shared then shared = true
     end
 
     -- Return true if a given spell can be casted
-    function Cast(id, unit)
+    function Cast(id, unit, type)
         unit = unit or player
-        if CdRemains(id, false) and ValidUnit(unit, enemy)
+        if CdRemains(id, false)
+                and ValidUnit(unit, type)
+                and InLos(player, unit)
                 and (unit == player or IsSpellInRange(SpellNames[id], unit) == 1) then
             CastSpellByID(id, unit)
             return true
@@ -186,9 +269,8 @@ if not shared then shared = true
 
     -- Return true if a given aura is present on a given unit
     function HasAura(id, unit)
-        unit = unit or player
-        return UnitDebuff(unit, GetSpellInfo(id)) ~= nil
-                or select(11, UnitAura(unit, GetSpellInfo(id))) == id
+        return UnitDebuff(unit, SpellNames[id]) ~= nil or
+                select(11, UnitAura(unit, SpellNames[id])) == id
     end
 
     -- Return true if a given unit health is under a given percent
@@ -223,27 +305,57 @@ if not shared then shared = true
         return GetDistanceBetweenObjects(player, unit) < SharedConfiguration.melee_range
     end
 
+    -- Return true if a target is stealthed
+    function IsStealth(unit)
+        return HasAura(RogueSpells.VANISH, unit) or
+                HasAura(RogueSpells.STEALTH, unit) or
+                HasAura(DruidSpells.PROWL, unit) or
+                HasAura(RaceSpells.SHADOWMELD, unit)
+    end
+
     sharedFrame = CreateFrame("FRAME", nil, UIParent)
     sharedFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
     sharedFrame:RegisterEvent("PLAYER_LOGIN")
     sharedFrame:SetScript("OnEvent",
-    function(self, event, _, type,  srcGuid, srcName, _, targetGuid, targetName, _, spellId)
+        function(self, event, _, type, srcGuid, srcName, _, targetGuid, targetName, _, spellId)
 
-        if type == "PLAYER_LOGIN" and objectTimer ~= -1 then
-            StopTimer(objectTimer)
-            do return end
+            if type == "PLAYER_LOGIN" then
+                StopTimer(objectTimer)
+                do return end
+            end
+
+            if spellId == RogueSpells.VANISH or
+                    spellId == RogueSpells.STEALTH or
+                    spellId == DruidSpells.PROWL or
+                    spellId == RaceSpells.SHADOWMELD then
+                SpellStopCasting()
+                local found = WorldObjects[srcName]
+                Cast(Configuration.SPOT_SPELL, found, enemy)
+                TargetUnit(found)
+            end
+        end)
+
+    -- Break stealth of world targets
+    function BreakStealth(unit)
+        if IsStealth(unit) then
+            Cast(Configuration.SPOT_SPELL, unit, enemy)
+            TargetUnit(unit)
+            return true
         end
 
-        if  spellId == RogueSpells.VANISH or
-            spellId == RogueSpells.STEALTH or
-            spellId == DruidSpells.PROWL or
-            spellId == RaceSpells.SHADOWMELD then
-            print("lol")
-            SpellStopCasting()
-            Cast(Configuration.SPOT_SPELL, WorldObjects[srcName])
-        end
-    end)
+        return false
+    end
 
+    -- Analize all world map objects
+    function AnalizeWorld()
+        for i = 1, ObjectCount() do
+            local object = ObjectWithIndex(i)
+
+            BreakStealth(object)
+        end
+    end
+
+    -- Refresh all objects table indexed by name
     function RefreshObjects()
         for i = 1, ObjectCount() do
             local object = ObjectWithIndex(i)
@@ -257,17 +369,24 @@ if not shared then shared = true
     end
 
     function OnDisable()
-        sharedFrame:UnregisterAllEvents()
+        sharedFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
         StopTimer(objectTimer)
+        StopTimer(analizeTimer)
         print("[Shared-API] succesfully disabled")
+        PlaySound("TalentScreenClose", "master")
     end
 
     function OnEnable()
-        objectTimer = CreateTimer(500, RefreshObjects);
+        objectTimer = CreateTimer(500, RefreshObjects)
+        analizeTimer = CreateTimer(20, AnalizeWorld)
+
         if objectTimer ~= nil then
             print("[Shared-API] successfully enabled")
+            PlaySound("AuctionWindowClose", "master")
+            return true
         else
-            print("[Shared-API] an error occured")
+            print("[Shared-API] an error occured, please /reload")
+            return false
         end
     end
 end

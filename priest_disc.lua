@@ -11,8 +11,45 @@ if not defined then
 
     RunScript(ReadFile("script/shared.lua"))
 
+    -- Healing rotation for a given friendly unit
     function Heal(unit)
+        if unit == pet then
+            if UnitExists(party1pet) then
+                unit = party1pet
+            elseif UnitExists(party2pet) then
+                unit = party2pet
+            end
+        end
 
+        if CdRemains(PriestSpells.SHIELD, false)
+                and not HasAura(PriestSpells.SHIELD, unit)
+                and not HasAura(Auras.WEAKENED_SOUL, unit) then
+            Cast(PriestSpells.SHIELD, unit, ally)
+
+        elseif CdRemains(PriestSpells.PRAYER_OF_MENDING, false)
+                and not HasAura(Auras.PRAYER_OF_MENDING, unit)
+                and HealthIsUnder(unit, 80) then
+            Cast(PriestSpells.PRAYER_OF_MENDING, unit, ally)
+
+        elseif CdRemains(PriestSpells.PENANCE, false) then
+            Cast(PriestSpells.PENANCE, unit, ally)
+
+        elseif HealthIsUnder(unit, 70)
+                and not HasAura(PriestSpells.RENEW, unit)
+                and HasAura(PriestSpells.SHIELD, unit)
+                and HasAura(Auras.GRACE, unit) then
+            Cast(PriestSpells.RENEW, unit, ally)
+
+        else
+            local id = PriestSpells.FLASH_HEAL
+
+            if HealthIsUnder(player, 80)
+                    and unit ~= player then
+                id = PriestSpells.BINDING_HEAL
+            end
+
+            Cast(id, unit, ally)
+        end
     end
 
     -- Tracks and kills totems with wound/weapon in order: tremor, cleansing, earthind and others
@@ -46,7 +83,7 @@ if not defined then
         if melee then
             RunMacroText("/startattack [@"..priority.."]")
         else
-            CastSpellByID(5019, priority)
+            Cast(5019, priority)
         end
     end
 end
