@@ -56,15 +56,12 @@ if not defined then
     function TrackTotems()
         local priority_name, priority
 
-        for i = 1, ObjectCount() do
-            local object = ObjectWithIndex(i)
-            local objectName = ObjectName(object)
-
+        IterateObjects(function(object, objectName, _)
             if UnitIsEnemy(object, player) and UnitCanAttack(player, object) == 1 then
                 if objectName == SharedConfiguration.Totems.TREMOR then
                     priority = object
                     priority_name = objectName
-                    do break end
+                    return true
                 elseif objectName == SharedConfiguration.Totems.EARTHBIND then
                     priority = object
                     priority_name = objectName
@@ -76,14 +73,14 @@ if not defined then
                     priority_name = objectName
                 end
             end
-        end
 
-        local melee = GetDistanceBetweenObjects(player, priority) < 7
+            return false
+        end)
 
-        if melee then
+        if MeleeRange(priority) then
             RunMacroText("/startattack [@"..priority.."]")
         else
-            Cast(5019, priority)
+            Cast(RaceSpells.SHOOT, priority, enemy)
         end
     end
 end

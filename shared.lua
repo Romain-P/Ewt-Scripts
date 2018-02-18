@@ -27,6 +27,7 @@ if not shared then shared = true
     player_name = UnitName(player)
     objectTimer = -1
     analizeTimer = -1
+    callbacks = {}
     enabled = false
 
     WorldObjects = {}
@@ -63,7 +64,8 @@ if not shared then shared = true
     }
 
     RaceSpells = {
-        SHADOWMELD = 58984
+        SHADOWMELD = 58984,
+        SHOOT = 5019
     }
 
     HunterSpells = {}
@@ -171,7 +173,6 @@ if not shared then shared = true
     TableConcat(Spells, DkSpells)
     TableConcat(Spells, RaceSpells)
 
-
     function HoldSpells(table)
         local var
         for _, v in pairs(table) do
@@ -203,6 +204,10 @@ if not shared then shared = true
         else
             return WorldEnemies
         end
+    end
+
+    function RegisterCallback(callback)
+        callbacks[#callbacks + 1] = callback
     end
 
     -- Return true if unit is in los with otherunit
@@ -246,6 +251,8 @@ if not shared then shared = true
     -- Return true if a given spell can be casted
     function Cast(id, unit, type)
         unit = unit or player
+        type = type or ally
+
         if CdRemains(id, false)
                 and ValidUnit(unit, type)
                 and InLos(player, unit)
@@ -313,6 +320,18 @@ if not shared then shared = true
                 HasAura(RaceSpells.SHADOWMELD, unit)
     end
 
+    function IterateObjects(callback)
+        for i = 1, ObjectCount() do
+            local object = ObjectWithIndex(i)
+            local name = ObjectName(object)
+            local position = ObjectPosition(object)
+
+            if callback(object, name, position) then
+                break
+            end
+        end
+    end
+
     sharedFrame = CreateFrame("FRAME", nil, UIParent)
     sharedFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
     sharedFrame:RegisterEvent("PLAYER_LOGIN")
@@ -350,8 +369,14 @@ if not shared then shared = true
     function AnalizeWorld()
         for i = 1, ObjectCount() do
             local object = ObjectWithIndex(i)
+            local name = ObjectName(object)
+            local position = ObjectPosition(object)
 
             BreakStealth(object)
+
+            for j = 1, #callbacks do
+                callbacks[j](object, name, position)
+            end
         end
     end
 
@@ -369,7 +394,7 @@ if not shared then shared = true
     end
 
     function OnDisable()
-        sharedFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+        sharedFrame:SetScript("OnEvent", nil)
         StopTimer(objectTimer)
         StopTimer(analizeTimer)
         print("[Shared-API] succesfully disabled")
