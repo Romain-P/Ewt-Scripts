@@ -229,7 +229,7 @@ if not shared then shared = true
     sharedFrame:SetScript("OnEvent",
     function(self, event, _, type,  srcGuid, srcName, _, targetGuid, targetName, _, spellId)
 
-        if event == "PLAYER_LOGIN" and objectTimer ~= -1 then
+        if type == "PLAYER_LOGIN" and objectTimer ~= -1 then
             StopTimer(objectTimer)
             do return end
         end
@@ -238,6 +238,7 @@ if not shared then shared = true
             spellId == RogueSpells.STEALTH or
             spellId == DruidSpells.PROWL or
             spellId == RaceSpells.SHADOWMELD then
+            print("lol")
             SpellStopCasting()
             Cast(Configuration.SPOT_SPELL, WorldObjects[srcName])
         end

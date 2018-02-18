@@ -31,7 +31,7 @@ if not defined then
                 elseif objectName == SharedConfiguration.Totems.EARTHBIND then
                     priority = object
                     priority_name = objectName
-                elseif objectName == SharedConfiguration.Totems.CLEANSING and priority_name ~= Totems.EARTHBIND then
+                elseif objectName == SharedConfiguration.Totems.CLEANSING and priority_name ~= SharedConfiguration.Totems.EARTHBIND then
                     priority = object
                     priority_name = objectName
                 elseif string.find(objectName, SharedConfiguration.Totems.TOTEM_OCCURENCE) ~= nil and priority == nil then
@@ -49,4 +49,12 @@ if not defined then
             CastSpellByID(5019, priority)
         end
     end
+end
+
+if not enabled then
+    OnEnable()
+    enabled = true
+else
+    OnDisable()
+    enabled = false
 end
