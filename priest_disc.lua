@@ -85,7 +85,7 @@ if not defined then
     function TrackTotems()
         local priority_name, priority
 
-        IterateObjects(
+        IterateObjects(true,
             function(object, objectName, _)
                 if UnitIsEnemy(object, player) and UnitCanAttack(player, object) == 1 then
                     local tremor_totem = objectName == SharedConfiguration.Totems.TREMOR

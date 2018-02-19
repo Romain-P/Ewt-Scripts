@@ -258,7 +258,9 @@ if not shared then shared = true
 
     -- Take a callback(object, name, position) that gonna be called iterating map objects.
     -- Return true in the callback to break the loop, false otherwise
-    function IterateObjects(callback)
+    function IterateObjects(enabled, callback)
+        if not enabled then return end
+
         for i = 1, ObjectCount() do
             local object = ObjectWithIndex(i)
             local name = ObjectName(object)
@@ -280,14 +282,14 @@ if not shared then shared = true
     end
 
     -- Register a callback(object, name, position) that gonna be called while iterating world map objects
-    function RegisterAdvancedCallback(callback, enabled)
+    function RegisterAdvancedCallback(enabled, callback)
         if not enabled then return end
 
         aCallbacks[#aCallbacks + 1] = callback
     end
 
     -- Register a callback() that gonna be called in an loop
-    function RegisterSimpleCallback(callback, enabled)
+    function RegisterSimpleCallback(enabled, callback)
         if not enabled then return end
 
         sCallbacks[#sCallbacks + 1] = callback
@@ -306,7 +308,7 @@ if not shared then shared = true
                 end
             end
 
-        RegisterAdvancedCallback(callback, true)
+        RegisterAdvancedCallback(true, callback)
     end
 
     -- Applies ur callback(auraId, unit) when some of ur units has active aura present in the aura array
@@ -326,7 +328,7 @@ if not shared then shared = true
             end
         end
 
-        RegisterSimpleCallback(callback, true)
+        RegisterSimpleCallback(true, callback)
     end
 
     function stopTimers(timers)

@@ -21,12 +21,12 @@ See more specific functions directly in the file `shared.lua`
 
 * Apply a `callback(auraId, object, name, position)` when some of the world map units has an aura present in the aura array
 ````lua
-    function KeepEyeOnWorld(auraArray, callback);
+    function KeepEyeOnWorld(auraArray, enabled, callback);
     
     -- Naive Example
     -- This function holds an advanced callback in a shared table 
     -- The callback is gonna cast mass dispel when a player is found with divine shield in the world map
-    KeepEyeOnWorld({Auras.DIVINE_SHIELD},
+    KeepEyeOnWorld({Auras.DIVINE_SHIELD}, true, -- true to enable the feature
         function(_, object, x, y, z)
             CastSpellByID(PriestSpells.MASS_DISPEL)
             ClickPosition(x, y, z)
@@ -36,12 +36,12 @@ See more specific functions directly in the file `shared.lua`
 
 * Apply a `callback(auraId, unit)` when some of ur units has active aura present in the aura array
 ````lua
-    function KeepEyeOn(units, auraArray, to_apply);
+    function KeepEyeOn(units, auraArray, enabled, to_apply);
     
     -- Naive Example
     -- This function holds a simple callback in a shared table
     -- The callback is gonna dispel party1 and party when they are under HOJ
-    KeepEyeOn({party1, party2}, {Auras.HOJ},
+    KeepEyeOn({party1, party2}, {Auras.HOJ}, true, -- true to enable the feature
         function(auraId, unit)
             CastSpellByID(PaladinSpells.CLEANSE, unit)
         end
@@ -50,12 +50,12 @@ See more specific functions directly in the file `shared.lua`
 
 * Listen casted spells in the world map and perform a `callback(event, srcName, targetGuid, targetName, spellId, object, pos)` when one is fired
 ````lua
-    function ListenSpellsAndThen(auraArray, callback);
+    function ListenSpellsAndThen(auraArray, enabled, callback);
     
     -- Naive Example
     -- This function holds a callback in a shared table
     -- This callback is gonna Charge a rogue when he tries to be stealth
-    ListenSpellsAndThen({RogueSpells.VANISH, RogueSpells.STEALTH}, 
+    ListenSpellsAndThen({RogueSpells.VANISH, RogueSpells.STEALTH}, true, -- true to enable the feature
         function(event, srcName, targetGuid, targetName, spellId, object, x, y, z)
             CastSpellByID(WarriorSpells.CHARGE, object)
         end
@@ -67,13 +67,13 @@ See more specific functions directly in the file `shared.lua`
     -- Take a callback(object, name, position) that gonna be called for each map object.
     -- Return true in the callback to break the loop, false otherwise
     -- /!\ This function doesnt hold the callback, it performs only one loop
-    function IterateObjects(callback)
+    function IterateObjects(enabled, callback)
 
     -- Register a callback(object, name, position) that gonna be called while iterating world map objects
-    function RegisterAdvancedCallback(callback);
+    function RegisterAdvancedCallback(enabled, callback);
 
     -- Register a callback() that gonna be called in an loop
-    function RegisterSimpleCallback(callback);
+    function RegisterSimpleCallback(enabled, callback);
 ````
 
 #### Priest Scripts
