@@ -93,7 +93,10 @@ See more specific functions directly in the file `shared.lua`
 ```lua
     Configuration = {
         -- A spell that gonna be casted on stealthed targets
-        SPOT_SPELL = PriestSpells.SWD
+        STEALTH_SPOT = {
+            ENABLED = true,
+            SPELL_ID = PriestSpells.SWD
+        },
     }
 ```
 
@@ -101,12 +104,15 @@ See more specific functions directly in the file `shared.lua`
 ```lua
     Configuration = {
         -- Spell list to swd when casted on you
-        SWD_INSTANT_CONTROL_LIST = {
-            HunterSpells.SCATTER,
-            DkSpells.HUNGERING_COLD,
-            RogueSpells.BLIND,
-            RogueSpells.GOUGE,
-            PaladinSpells.REPENTENCE
+        SWD_INSTANT_CONTROL = {
+            ENABLED = true,
+            SPELL_LIST = {
+                HunterSpells.SCATTER,
+                DkSpells.HUNGERING_COLD,
+                RogueSpells.BLIND,
+                RogueSpells.GOUGE,
+                PaladinSpells.REPENTENCE
+            }
         }
     }
 ```
@@ -115,15 +121,29 @@ See more specific functions directly in the file `shared.lua`
 ```lua
     Configuration = {
         -- Dispel list on party
-        DISPELL_LIST = {
-            Auras.HOJ,
-            Auras.REPENTANCE,
-            Auras.SEDUCTION,
-            Auras.SEDUCTION2,
-            Auras.COUNTERSPELL
+        AUTO_DISPEL = {
+            ENABLED = true,
+            AURA_LIST = {
+                Auras.HOJ,
+                Auras.REPENTANCE,
+                Auras.SEDUCTION,
+                Auras.SEDUCTION2,
+                Auras.COUNTERSPELL
+            }
         }
     }
 ```
 
-* `Auto Mass Dispel`: Automatically cast `Mass Dispel` on a paladin using `Divine Shield` on the world map. This feature has to be reviewed to calculate a new position when the paladin isnt in direct `LoS` or `15 yards away` (15 yards of radius)
+* `Auto Mass Dispel`: Automatically cast `Mass Dispel` on players with the defined aura list. This feature has to be reviewed to calculate a new position when the paladin isnt in direct `LoS` or `15 yards away` (15 yards of radius)
 
+```lua
+    Configuration = {
+        MASS_DISPELL = {
+            ENABLED = true,
+            AURA_LIST = {
+                Auras.DIVINE_SHIELD,
+                Auras.ICEBLOCK
+            }
+        }
+    }
+````

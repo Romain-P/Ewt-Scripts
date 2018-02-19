@@ -331,8 +331,9 @@ if not shared then shared = true
     -- Spots instant trying to stealth
     ListenSpellsAndThen(SharedConfiguration.StealthSpells,
         function(_, _, _, _, _, object, _, _, _)
+            if not Configuration.STEALTH_SPOT.ENABLED then return end
             SpellStopCasting()
-            Cast(Configuration.SPOT_SPELL, object, enemy)
+            Cast(Configuration.STEALTH_SPOT.SPELL_ID, object, enemy)
             TargetUnit(found)
         end
     )
@@ -341,8 +342,8 @@ if not shared then shared = true
     KeepEyeOnWorld(SharedConfiguration.StealthSpells,
         function(_, object, _, _, _, _)
             if not HasAuraInArray(SharedConfiguration.StealthSpells, object)
-               or  Configuration.SPOT_SPELL == nil then return end
-            Cast(Configuration.SPOT_SPELL, object, enemy)
+               or not Configuration.STEALTH_SPOT.ENABLED then return end
+            Cast(Configuration.STEALTH_SPOT.SPELL_ID, object, enemy)
             TargetUnit(object)
         end
     )
