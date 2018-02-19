@@ -65,16 +65,60 @@ See more specific functions directly in the file `shared.lua`
 * See also 'primitive' functions to register a custom callback
 ````lua
     -- Register a callback(object, name, position) that gonna be called while iterating world map objects
-    function RegisterAdvancedCallback(callback)
-        aCallbacks[#aCallbacks + 1] = callback
-    end
+    function RegisterAdvancedCallback(callback);
 
     -- Register a callback() that gonna be called in an loop
-    function RegisterSimpleCallback(callback)
-        sCallbacks[#sCallbacks + 1] = callback
-    end
+    function RegisterSimpleCallback(callback);
 ````
 
 #### Priest Scripts
 
-* 
+* `Totem tracker`: checks for destroy totems with Shoot/Weapon (depending the range) in order: `Tremor, Cleansing, Earthbind and then others`
+```lua
+    -- Make this macro and press it to kill a totem
+    /script TrackTotems()
+```
+* `Healing Rotation`: performs an healing rotation on the unit you want e.g `player`, `party1`, `party1pet`
+```lua
+    -- Make this macro and press it to heal the unit, yourself in this example
+    /script Heal(player)
+```
+
+* `Stealth Spot`: Analyses the world map objects and spot all stealth players with the defined spellId (class depending)
+```lua
+    Configuration = {
+        -- A spell that gonna be casted on stealthed targets
+        SPOT_SPELL = PriestSpells.SWD
+    }
+```
+
+* `Auto Instant Controls Break`: Breaks any instant control from any object of the world map
+```lua
+    Configuration = {
+        -- Spell list to swd when casted on you
+        SWD_INSTANT_CONTROL_LIST = {
+            HunterSpells.SCATTER,
+            DkSpells.HUNGERING_COLD,
+            RogueSpells.BLIND,
+            RogueSpells.GOUGE,
+            PaladinSpells.REPENTENCE
+        }
+    }
+```
+
+* `Auto Friendly Dispel`: Dispels your party members when they got specific auras
+```lua
+    Configuration = {
+        -- Dispel list on party
+        DISPELL_LIST = {
+            Auras.HOJ,
+            Auras.REPENTANCE,
+            Auras.SEDUCTION,
+            Auras.SEDUCTION2,
+            Auras.COUNTERSPELL
+        }
+    }
+```
+
+* `Auto Mass Dispel`: Automatically cast Mass Dispel on a paladin using Divine Shield on the world map. This feature has to be reviewed to calculate a new position when the paladin isnt in direct LoS or 15 yards away (15 yards of radius)
+
