@@ -47,7 +47,10 @@ if not shared_spells then
         SHIELD = 48066,
         BINDING_HEAL = 48120,
         SWD = 48158,
-        MASS_DISPEL = 32375
+        MASS_DISPEL = 32375,
+        HOLY_FIRE = 48135,
+        SMITE = 48123,
+        MIND_BLAST = 48127
     }
 
     Auras = {

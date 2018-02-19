@@ -122,7 +122,10 @@ if not defined then
 
     -- Dps rotation for a given enemy unit
     function Dps(unit)
-
+        -- in order, holy, smite, mind blast (if interrupted in holy school)
+        Cast(PriestSpells.HOLY_FIRE, unit, enemy)
+        Cast(PriestSpells.SMITE, unit, enemy)
+        Cast(PriestSpells.MIND_BLAST, unit, enemy)
     end
 
     -- Healing rotation for a given friendly unit
@@ -168,12 +171,6 @@ if not defined then
             Cast(id, unit, ally)
         end
     end
-
-    RegisterSimpleCallback(true,
-        function()
-            Heal(player)
-        end
-    )
 end
 
 if not enabled then
