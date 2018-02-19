@@ -107,7 +107,7 @@ if not defined then
         Configuration.SWD_CASTING_CONTROL.SPELL_LIST,
         Configuration.SWD_CASTING_CONTROL.PERCENT,
         Configuration.SWD_CASTING_CONTROL.ENABLED,
-            function(object, name, x, y, z)
+            function(object, _, _, _, _)
                 if not Cast(PriestSpells.SWD, object, enemy) then
                     -- if the mage isnt in range, lf a closer target
                     local found

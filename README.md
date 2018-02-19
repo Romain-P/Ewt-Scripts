@@ -104,7 +104,14 @@ See [Priest Configuration](https://github.com/Romain-P/Ewt-Scripts/blob/master/p
     -- Make this macro and press it to heal the unit, yourself in this example
     /script Heal(player)
 ```
+* `Dps Rotation`: performs a dps rotation on the unit you want in order, holy fire, smite and mind blast if interrupted
+```lua
+    -- Make this macro and press it to dps the unit, target in this example
+    /script Dps(target)
+```
 * `Stealth Spot`: Analyses the world map objects and spot all stealth players with the defined spellId (class depending)
-* `Auto Instant Controls Break`: Breaks any instant control from any object of the world map
+* `Auto Instant Controls Break`: Swd all instant controls from any player on the map e.g gouge
 * `Auto Friendly Dispel`: Dispels your party members when they got specific auras
 * `Auto Mass Dispel`: Automatically cast `Mass Dispel` on players with the defined aura list. This feature has to be reviewed to calculate a new position when the paladin isnt in direct `LoS` or `15 yards away` (15 yards of radius)
+* `Auto Casting Controls Break`: Swd all casting controls from any player on the map e.g sheep
+* `Auto Fakecast Overpower`: Fakecast instant overpowers from other warrior scripters
