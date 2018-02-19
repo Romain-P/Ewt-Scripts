@@ -9,6 +9,7 @@ Each analysis doesnt need to have defined unit e.g `target`/`focus`/`arena123`. 
 * Make a folder called `script` in your world of warcraft folder  
 * Put all .lua files in this folder
 * Example of location: `your_wow_folder/script/shared.lua`
+* Finally enable it with the ewt-command e.g `.loadfile script/priest_disc.lua`
 
 ### Documentation
 
