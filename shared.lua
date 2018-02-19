@@ -39,7 +39,8 @@ if not shared then shared = true
     enabled = false
 
     WorldObjects = {}
-    FrameCallbacks = {}
+    CombatCallbacks = {}
+    EventCallbacks = {}
 
     aCallbacks = {}
     sCallbacks = {}
@@ -277,7 +278,13 @@ if not shared then shared = true
         if not enabled then return end
 
         for i=1, #auraArray do
-            FrameCallbacks[auraArray[i]] = callback;
+            local aura = auraArray[i]
+
+            if CombatCallbacks[aura] == nil then
+                CombatCallbacks[aura] = {}
+            end
+
+            CombatCallbacks[aura][#CombatCallbacks[aura] + 1] = callback;
         end
     end
 
@@ -392,30 +399,59 @@ if not shared then shared = true
         end
     end
 
-    sharedFrame = CreateFrame("FRAME", nil, UIParent)
-    sharedFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-    sharedFrame:RegisterEvent("PLAYER_LOGIN")
-    sharedFrame:SetScript("OnEvent",
-        function(self, event, _, type, srcGuid, srcName, _, targetGuid, targetName, _, spellId)
+    -- Register an event list and associate a script to them
+    function RegisterEvents(event, enabled, script)
+        if not enabled then return end
 
-            if type == "PLAYER_LOGIN" then
-                stopTimers({objectTimer, analizeTimer, simpleTimer})
-                do return end
+        for i=1, #event do
+            local event = event[i]
+
+            if (EventCallbacks[event] == nil) then
+                EventCallbacks[event] = {}
             end
 
-            local object = WorldObjects[srcName]
+            EventCallbacks[event][#EventCallbacks[event] + 1] = script
+        end
+    end
 
-            for k,v in pairs(FrameCallbacks) do
-                if k == spellId then
-                    local x, y, z = ObjectPosition(object)
-                    v(event, srcName, targetGuid, targetName, spellId, object, x, y, z)
-                end
+    -- Register combat callbacks #ListenSpellsAndThen
+    RegisterEvents({"COMBAT_LOG_EVENT_UNFILTERED"}, true,
+        function(_, event, _, type, _, srcName, _, targetGuid, targetName, _, spellId, object, x, y, z)
+            local callbacks = CombatCallbacks[spellId]
+
+            if callbacks == nil then return end
+
+            for i=1, #callbacks do
+                callbacks[i](event, srcName, targetGuid, targetName, spellId, object, x, y, z)
+            end
+        end
+    )
+
+    -- Register when the player /reload or logout to remove timers
+    RegisterEvents({"PLAYER_LOGIN", "PLAYER_LOGOUT"}, true,
+        function(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _)
+            stopTimers({objectTimer, analizeTimer, simpleTimer})
+        end
+    )
+
+    sharedFrame = CreateFrame("FRAME", nil, UIParent)
+    sharedFrame:SetScript("OnEvent",
+        function(self, event, arg1, type, srcGuid, srcName, arg2, targetGuid, targetName, arg3, spellId)
+            local scripts = EventCallbacks[event]
+
+            if scripts == nil then return end
+
+            local object = WorldObjects[srcName]
+            local x, y, z = ObjectPosition(object)
+
+            for i=1, #scripts do
+                scripts[i](self, event, arg1, type, srcGuid, srcName, arg2, targetGuid, targetName, arg3, spellId, object, x,y,z)
             end
         end
     )
 
     function OnDisable()
-        sharedFrame:SetScript("OnEvent", nil)
+        sharedFrame:UnregisterAllEvents()
         stopTimers({objectTimer, analizeTimer, simpleTimer})
         print("[Shared-API] succesfully disabled")
         print("["..Configuration.SCRIPT_NAME.."] is stopped")
@@ -426,6 +462,10 @@ if not shared then shared = true
         objectTimer = CreateTimer(500, RefreshObjects)
         analizeTimer = CreateTimer(20, AnalizeWorld)
         simpleTimer = CreateTimer(20, SimpleLoop)
+
+        for k,_ in pairs(EventCallbacks) do
+           sharedFrame:RegisterEvent(k)
+        end
 
         if objectTimer ~= nil and analizeTimer ~= nil and simpleTimer ~= nil then
             print("[Shared-API] successfully enabled")

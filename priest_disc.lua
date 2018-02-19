@@ -114,6 +114,11 @@ if not defined then
         end
     end
 
+    -- Dps rotation for a given enemy unit
+    function Dps(unit)
+
+    end
+
     -- Healing rotation for a given friendly unit
     function Heal(unit)
         if unit == pet then

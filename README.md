@@ -76,6 +76,19 @@ See more specific functions directly in the file `shared.lua`
     function RegisterSimpleCallback(enabled, callback);
 ````
 
+* Listen events and apply custom scripts `callback(self, event, arg1, type, srcGuid, srcName, arg2, targetGuid, targetName, arg3, spellId, object, x, y, z)` when they are fired
+```lua
+    -- Register an event list and associate a script(
+    function RegisterEvents(event, enabled, script);
+    
+    RegisterEvents({PLAYER_TOTEM_UPDATE}, true, -- true to enable the feature
+        function(_, _, _, _, _, srcName, _, _, _, _, _, player_unit, posx, posy, posz)
+            print("The player "..srcName.." spawned or destroyed a totem")
+        end
+    )
+```
+
+
 #### Priest Scripts
 
 See [Priest Configuration](https://github.com/Romain-P/Ewt-Scripts/blob/master/priest_disc.lua#L8) for more details and customisation
