@@ -14,7 +14,15 @@ if not shared_spells then
     }
 
     WarriorSpells = {}
-    MageSpells = {}
+
+    MageSpells = {
+        Polymorph_sheep = 12826,
+        Polymorph_rabbit = 61721,
+        Polymorph_turtle = 28271,
+        Polymorph_pig = 28272,
+        Polymorph_cat = 61305
+    }
+
     WarlockSpells = {}
 
     ShamanSpells = {}

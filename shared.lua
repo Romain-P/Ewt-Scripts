@@ -5,7 +5,7 @@ if not shared then shared = true
     SharedConfiguration = {
         melee_range = 7,
         gcd_value = 1.5,
-        latency = 0.08, -- latency in seconds
+        latency = 0.15, -- latency in seconds
 
         Totems = {
             TREMOR = "Tremor Totem",
@@ -375,6 +375,39 @@ if not shared then shared = true
 
             EventCallbacks[event][#EventCallbacks[event] + 1] = script
         end
+    end
+
+    -- Returns channeling or casting infos or nil if none
+    function UnitCastInfo(unit)
+        local name, _,_,_, start, ends, _, _, protected = UnitCastingInfo(unit)
+
+        if name == nil then
+            name, _,_,_, start, ends, _, protected = UnitChannelInfo(unit)
+        end
+
+        return name, start, ends, protected
+    end
+
+    -- Perform an action at a given % for a given spell array
+    function PerformCallbackWhenCast(spellArray, percent, enabled, callback)
+        RegisterAdvancedCallback(enabled,
+            function(object, name, x, y, z)
+                if  percent == nil or percent == 0 then percent = 0.01 elseif
+                    percent > 100 then percent = 100 end
+
+                local spellName, start, ends, protected = UnitCastInfo(object)
+
+                if spellName == nil then return end
+
+                local duration = ends - start;
+                local percentPoint = start + duration * percent / 100
+                local currentTime = GetTime()
+
+                if currentTime * 1000 > percentPoint - SharedConfiguration.latency then
+                    callback(object, name, x, y, z)
+                end
+            end
+        )
     end
 
     function stopTimers(timers)

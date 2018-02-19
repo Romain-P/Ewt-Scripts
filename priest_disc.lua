@@ -41,7 +41,7 @@ if not defined then
             }
         },
 
-        -- Spell list of spells to swd when casted on you
+        -- Spell list to swd when casted on you
         SWD_INSTANT_CONTROL = {
             ENABLED = true,
             SPELL_LIST = {
@@ -50,6 +50,19 @@ if not defined then
                 RogueSpells.BLIND,
                 RogueSpells.GOUGE,
                 PaladinSpells.REPENTENCE
+            }
+        },
+
+        -- Spell list to swd when casted on yu
+        SWD_CASTING_CONTROL = {
+            ENABLED = true,
+            PERCENT = 90, -- swd at 90% of the castbar
+            SPELL_LIST = {
+                MageSpells.Polymorph_sheep,
+                MageSpells.Polymorph_cat,
+                MageSpells.Polymorph_pig,
+                MageSpells.Polymorph_rabbit,
+                MageSpells.Polymorph_turtle
             }
         }
     }
@@ -87,6 +100,31 @@ if not defined then
                 ClickPosition(x, y, z)
             end
         end
+    )
+
+    -- SWD casting controls defined in configuration
+    PerformCallbackWhenCast(
+        Configuration.SWD_CASTING_CONTROL.SPELL_LIST,
+        Configuration.SWD_CASTING_CONTROL.PERCENT,
+        Configuration.SWD_CASTING_CONTROL.ENABLED,
+            function(object, name, x, y, z)
+                if not Cast(PriestSpells.SWD, object, enemy) then
+                    -- if the mage isnt in range, lf a closer target
+                    local found
+
+                    local search = function(potential, pName, px, py, pz)
+                        if Cast(PriestSpells.SWD, potential, enemy) then
+                            found = potential
+                            return true
+                        end
+                    end
+
+                    IterateObjects(true, search)
+                    if found ~= nil then
+                        Cast(PriestSpells.SWD, found, enemy)
+                    end
+                end
+            end
     )
 
     -- Tracks and kills totems with wound/weapon in order: tremor, cleansing, earthind and others
