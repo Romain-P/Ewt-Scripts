@@ -93,4 +93,4 @@ See more specific functions directly in the file `shared.lua`
 * `Auto Friendly Dispel`: Dispels your party members when they got specific auras
 * `Auto Mass Dispel`: Automatically cast `Mass Dispel` on players with the defined aura list. This feature has to be reviewed to calculate a new position when the paladin isnt in direct `LoS` or `15 yards away` (15 yards of radius)
 
-See @Configuration for more details en customisation
+See [Priest Configuration](https://github.com/Romain-P/Ewt-Scripts/blob/master/priest_disc.lua#L8) for more details and customisation
