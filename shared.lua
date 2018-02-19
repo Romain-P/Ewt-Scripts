@@ -5,11 +5,19 @@ if not shared then shared = true
     SharedConfiguration = {
         melee_range = 7,
         gcd_value = 1.5,
+
         Totems = {
             TREMOR = "Tremor Totem",
             EARTHBIND = "Earthbind Totem",
             CLEANSING = "Cleansing Totem",
             TOTEM_OCCURENCE = "Totem"
+        },
+
+        StealthSpells = {
+            RogueSpells.VANISH,
+            RogueSpells.STEALTH,
+            DruidSpells.PROWL,
+            RaceSpells.SHADOWMELD
         }
     }
 
@@ -27,11 +35,14 @@ if not shared then shared = true
     player_name = UnitName(player)
     objectTimer = -1
     analizeTimer = -1
-    callbacks = {}
+    simpleTimer = -1
     enabled = false
 
     WorldObjects = {}
     FrameCallbacks = {}
+
+    aCallbacks = {}
+    sCallbacks = {}
 
     Party = {
         "party1",
@@ -62,104 +73,6 @@ if not shared then shared = true
         "focustarget",
         "focus",
         "mouseover"
-    }
-
-    RaceSpells = {
-        SHADOWMELD = 58984,
-        SHOOT = 5019
-    }
-
-    HunterSpells = {
-        SCATTER = 19503
-    }
-
-    WarriorSpells = {}
-    MageSpells = {}
-    WarlockSpells = {}
-    ShamanSpells = {}
-
-    PaladinSpells = {
-        REPENTENCE = 20066
-    }
-
-    DkSpells = {
-        HUNGERING_COLD = 49203
-    }
-
-    DruidSpells = {
-        PROWL = 5215
-    }
-
-    RogueSpells = {
-        VANISH = 26889,
-        STEALTH = 1784,
-        BLIND = 2084,
-        GOUGE = 1776
-    }
-
-    PriestSpells = {
-        PENANCE = 53007,
-        FLASH_HEAL = 48071,
-        PRAYER_OF_MENDING = 48113,
-        RENEW = 48068,
-        SHIELD = 48066,
-        BINDING_HEAL = 48120,
-        SWD = 48158
-    }
-
-    Auras = {
-        GRACE = 47930,
-        WEAKENED_SOUL = 6788,
-        PRAYER_OF_MENDING = 48111,
-        DIVINE_SHIELD = 642,
-        AURA_MASTERY = 31821,
-        RENEW = 48068,
-        HAND_PROTECTION = 10278,
-        BURNING_DETERMINATION = 54748,
-        OVERPOWER_PROC = 60503,
-        FAKE_DEATH = 5384,
-        SCATTER = 19503,
-        REPENTANCE = 20066,
-        BLIND = 2094,
-        HOJ = 10308,
-        SEDUCTION = 6358,
-        SEDUCTION2 = 6359,
-        STEALTH = 1784,
-        VANISH = 26889,
-        SHADOWMELD = 58984,
-        PROWL = 5215,
-        BLADESTORM = 46924,
-        SHADOW_DANCE = 51713,
-        AVENGING_WRATH = 31884,
-        HUNT_DISARM = 53359,
-        WAR_DISARM = 676,
-        ROGUE_DISARM = 51722,
-        SP_DISARM = 64058,
-        FEAR = 6215,
-        PSYCHIC_SCREAM = 10890,
-        HOWL_OF_TERROR = 17928,
-        GOUGE = 1776,
-        ENRAGED_REGENERATION = 55694,
-        SHAMAN_NATURE_SWIFTNESS = 16188,
-        DRUID_NATURE_SWIFTNESS = 17116,
-        ELEMENTAL_MASTERY = 16166,
-        PRESENCE_OF_MIND = 12043,
-        CYCLONE = 33786,
-        DETERRENCE = 19263,
-        PIERCING_HOWL = 12323,
-        HAND_FREEDOM = 1044,
-        MASTER_CALL = 54216,
-        DEEP = 44572,
-        ICEBLOCK = 45438,
-        HOT_STREAK = 48108,
-        COILE = 47860,
-        BLOODRAGE = 29131,
-        BERSERKER_RAGE = 18499,
-        ENRAGE = 57522,
-        GROUNDING_TOTEM = 8178,
-        BEAST = 34471,
-        LICHBORN = 49039,
-        MAGIC_SHIELD = 48707
     }
 
     function TableConcat(t1, t2)
@@ -216,10 +129,6 @@ if not shared then shared = true
         else
             return WorldEnemies
         end
-    end
-
-    function RegisterCallback(callback)
-        callbacks[#callbacks + 1] = callback
     end
 
     -- Return true if unit is in los with otherunit
@@ -292,6 +201,21 @@ if not shared then shared = true
                 select(11, UnitAura(unit, SpellNames[id])) == id
     end
 
+    -- same as HasAura but with an array, returns array of spellIds that matched, empty if none
+    function HasAuraInArray(array, unit)
+        local matched = {}
+
+        for j=1, #array do
+            local id = array[j]
+
+            if HasAura(id, unit) then
+                matched[#matched + 1] = id
+            end
+        end
+
+        return matched
+    end
+
     -- Return true if a given unit health is under a given percent
     function HealthIsUnder(unit, percent)
         return (((100 * UnitHealth(unit) / UnitHealthMax(unit))) < percent)
@@ -338,72 +262,107 @@ if not shared then shared = true
         for i = 1, ObjectCount() do
             local object = ObjectWithIndex(i)
             local name = ObjectName(object)
-            local position = ObjectPosition(object)
+            local x, y, z = ObjectPosition(object)
 
-            if callback(object, name, position) then
+            if callback(object, name, x, y, z) then
                 break
             end
         end
     end
 
     -- Listen spells and performs your callback(event, srcName, targetGuid, targetName, spellId) when one is fired
-    function ListenSpellsAndThen(spellList, callback)
-        for i=1, #spellList do
-            FrameCallbacks[spellList[i]] = callback;
+    function ListenSpellsAndThen(auraArray, callback)
+        for i=1, #auraArray do
+            FrameCallbacks[auraArray[i]] = callback;
         end
     end
 
-    sharedFrame = CreateFrame("FRAME", nil, UIParent)
-    sharedFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-    sharedFrame:RegisterEvent("PLAYER_LOGIN")
-    sharedFrame:SetScript("OnEvent",
-        function(self, event, _, type, srcGuid, srcName, _, targetGuid, targetName, _, spellId)
+    -- Register a callback(object, name, position) that gonna be called while iterating world map objects
+    function RegisterAdvancedCallback(callback)
+        aCallbacks[#aCallbacks + 1] = callback
+    end
 
-            if type == "PLAYER_LOGIN" then
-                StopTimer(objectTimer)
-                do return end
-            end
+    -- Register a callback() that gonna be called in an loop
+    function RegisterSimpleCallback(callback)
+        sCallbacks[#sCallbacks + 1] = callback
+    end
 
-            local object = WorldObjects[srcName]
+    -- Applies ur callback(auraId, object, name, position) when some of the world map units has active aura present in the aura array
+    function KeepEyeOnWorld(auraArray, to_apply)
+        local callback =
+            function(object, name, x, y, z)
+                local active_auras = HasAuraInArray(auraArray, object)
 
-            if spellId == RogueSpells.VANISH or
-                    spellId == RogueSpells.STEALTH or
-                    spellId == DruidSpells.PROWL or
-                    spellId == RaceSpells.SHADOWMELD then
-                SpellStopCasting()
-                Cast(Configuration.SPOT_SPELL, object, enemy)
-                TargetUnit(found)
-            end
-
-            for k,v in pairs(FrameCallbacks) do
-                if k == spellId then
-                    v(event, srcName, targetGuid, targetName, spellId, object)
+                for j=1, #active_auras do
+                    to_apply(active_auras[j], object, name, x, y, z)
                 end
             end
-        end)
 
-    -- Break stealth of world targets
-    function BreakStealth(unit)
-        if IsStealth(unit) then
-            Cast(Configuration.SPOT_SPELL, unit, enemy)
-            TargetUnit(unit)
-            return true
-        end
-
-        return false
+        RegisterAdvancedCallback(callback)
     end
 
-    -- Analize all world map objects
+    -- Applies ur callback(auraId, unit) when some of ur units has active aura present in the aura array
+    function KeepEyeOn(units, auraArray, to_apply)
+        local callback = function()
+            for i=1, #units do
+                local unit = units[i]
+                if UnitExists(unit) then
+                    local active_auras = HasAuraInArray(auraArray, unit)
+
+                    for j=1, #active_auras do
+                        to_apply(active_auras[j], unit)
+                    end
+                end
+            end
+        end
+
+        RegisterSimpleCallback(callback)
+    end
+
+    function stopTimers(timers)
+        for i=1, #timers do
+            local timer = timers[i]
+            if timer ~= nil then
+                StopTimer(timer)
+            end
+        end
+    end
+
+    -- Spots instant trying to stealth
+    ListenSpellsAndThen(SharedConfiguration.StealthSpells,
+        function(_, _, _, _, _, object, _, _, _)
+            SpellStopCasting()
+            Cast(Configuration.SPOT_SPELL, object, enemy)
+            TargetUnit(found)
+        end
+    )
+
+    -- Break stealth of world targets
+    KeepEyeOnWorld(SharedConfiguration.StealthSpells,
+        function(_, object, _, _, _, _)
+            if not HasAuraInArray(SharedConfiguration.StealthSpells, object)
+               or  Configuration.SPOT_SPELL == nil then return end
+            Cast(Configuration.SPOT_SPELL, object, enemy)
+            TargetUnit(object)
+        end
+    )
+
+    -- Call registered simple callbacks
+    function SimpleLoop()
+        for i=1, #sCallbacks do
+            sCallbacks[i]()
+        end
+    end
+
+    -- Analize all world map objects, calling registed iterate callbacks
     function AnalizeWorld()
         for i = 1, ObjectCount() do
             local object = ObjectWithIndex(i)
             local name = ObjectName(object)
-            local position = ObjectPosition(object)
+            local x, y, z = ObjectPosition(object)
 
-            BreakStealth(object)
-
-            for j = 1, #callbacks do
-                callbacks[j](object, name, position)
+            for j = 1, #aCallbacks do
+                aCallbacks[j](object, name, x, y, z)
             end
         end
     end
@@ -421,10 +380,31 @@ if not shared then shared = true
         end
     end
 
+    sharedFrame = CreateFrame("FRAME", nil, UIParent)
+    sharedFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+    sharedFrame:RegisterEvent("PLAYER_LOGIN")
+    sharedFrame:SetScript("OnEvent",
+        function(self, event, _, type, srcGuid, srcName, _, targetGuid, targetName, _, spellId)
+
+            if type == "PLAYER_LOGIN" then
+                stopTimers({objectTimer, analizeTimer, simpleTimer})
+                do return end
+            end
+
+            local object = WorldObjects[srcName]
+
+            for k,v in pairs(FrameCallbacks) do
+                if k == spellId then
+                    local x, y, z = ObjectPosition(object)
+                    v(event, srcName, targetGuid, targetName, spellId, object, x, y, z)
+                end
+            end
+        end
+    )
+
     function OnDisable()
         sharedFrame:SetScript("OnEvent", nil)
-        StopTimer(objectTimer)
-        StopTimer(analizeTimer)
+        stopTimers({objectTimer, analizeTimer, simpleTimer})
         print("[Shared-API] succesfully disabled")
         PlaySound("TalentScreenClose", "master")
     end
@@ -432,12 +412,14 @@ if not shared then shared = true
     function OnEnable()
         objectTimer = CreateTimer(500, RefreshObjects)
         analizeTimer = CreateTimer(20, AnalizeWorld)
+        simpleTimer = CreateTimer(20, SimpleLoop)
 
-        if objectTimer ~= nil then
+        if objectTimer ~= nil and analizeTimer ~= nil and simpleTimer ~= nil then
             print("[Shared-API] successfully enabled")
             PlaySound("AuctionWindowClose", "master")
             return true
         else
+            print(objectTimer, analizeTimer, simpleTimer)
             print("[Shared-API] an error occured, please /reload")
             return false
         end
