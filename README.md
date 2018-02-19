@@ -1,8 +1,8 @@
 ## Ewt Scripts
 
-All features in need are performing LoS, range, cooldown and unit type checks  
-Each analysis doesnt need to have defined unit e.g target/focus/arena123. The script performs checks analysing all map objects  
-No fps are taken with my scripts, I optimized all the code
+All features in need are performing `LoS`, `range`, `cooldown` and `unit type` checks  
+Each analysis doesnt need to have defined unit e.g `target`/`focus`/`arena123`. The script performs checks analysing all map objects  
+`No fps`are taken with my scripts, I `optimized` all the code
 
 ### Installation
 
