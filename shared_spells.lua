@@ -103,6 +103,7 @@ if not shared_spells then
         GROUNDING_TOTEM = 8178,
         BEAST = 34471,
         LICHBORN = 49039,
-        MAGIC_SHIELD = 48707
+        MAGIC_SHIELD = 48707,
+        PRIEST_SHIELD = 48066
     }
 end
