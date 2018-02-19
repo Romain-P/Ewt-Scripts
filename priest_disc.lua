@@ -15,13 +15,21 @@ if not defined then
             Auras.SEDUCTION,
             Auras.SEDUCTION2,
             Auras.COUNTERSPELL
+        },
+
+        SWD_INSTANT_LIST = {
+            HunterSpells.SCATTER,
+            DkSpells.HUNGERING_COLD,
+            RogueSpells.BLIND,
+            RogueSpells.GOUGE,
+            PaladinSpells.REPENTENCE
         }
     }
 
     RunScript(ReadFile("script/shared.lua"))
 
     -- SWD Scatter, Hungering cold, blind, gouge, repentence
-    ListenSpellsAndThen({HunterSpells.SCATTER, DkSpells.HUNGERING_COLD, RogueSpells.BLIND, RogueSpells.GOUGE, PaladinSpells.REPENTENCE},
+    ListenSpellsAndThen(Configuration.SWD_INSTANT_LIST,
         function(_, _, _, targetName, _, object, _, _, _)
             if targetName ~= player_name then return end
             Cast(PriestSpells.SWD, object, enemy)
