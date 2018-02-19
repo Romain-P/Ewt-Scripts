@@ -78,6 +78,8 @@ See more specific functions directly in the file `shared.lua`
 
 #### Priest Scripts
 
+See [Priest Configuration](https://github.com/Romain-P/Ewt-Scripts/blob/master/priest_disc.lua#L8) for more details and customisation
+
 * `Totem tracker`: checks for destroy totems with Shoot/Weapon (depending the range) in order: `Tremor, Cleansing, Earthbind and then others`
 ```lua
     -- Make this macro and press it to kill a totem
@@ -92,5 +94,3 @@ See more specific functions directly in the file `shared.lua`
 * `Auto Instant Controls Break`: Breaks any instant control from any object of the world map
 * `Auto Friendly Dispel`: Dispels your party members when they got specific auras
 * `Auto Mass Dispel`: Automatically cast `Mass Dispel` on players with the defined aura list. This feature has to be reviewed to calculate a new position when the paladin isnt in direct `LoS` or `15 yards away` (15 yards of radius)
-
-See [Priest Configuration](https://github.com/Romain-P/Ewt-Scripts/blob/master/priest_disc.lua#L8) for more details and customisation
