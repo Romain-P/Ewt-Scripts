@@ -103,7 +103,7 @@ if not defined then
     )
 
     -- SWD casting controls defined in configuration
-    PerformCallbackWhenCast(
+    PerformCallbackOnCasts(
         Configuration.SWD_CASTING_CONTROL.SPELL_LIST,
         Configuration.SWD_CASTING_CONTROL.PERCENT,
         Configuration.SWD_CASTING_CONTROL.ENABLED,

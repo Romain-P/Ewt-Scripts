@@ -389,21 +389,29 @@ if not shared then shared = true
     end
 
     -- Perform an action at a given % for a given spell array
-    function PerformCallbackWhenCast(spellArray, percent, enabled, callback)
+    function PerformCallbackOnCasts(spellArray, percent, enabled, callback)
         RegisterAdvancedCallback(enabled,
             function(object, name, x, y, z)
                 if  percent == nil or percent == 0 then percent = 0.01 elseif
                     percent > 100 then percent = 100 end
 
                 local spellName, start, ends, protected = UnitCastInfo(object)
+                local to_catch = false
 
-                if spellName == nil then return end
+                for i=1, #spellArray do
+                    local spellId = spellArray[i];
+
+                    if spellName == SpellNames[spellId] then
+                        to_catch = true
+                    end
+                end
+
+                if not to_catch then return end
 
                 local duration = ends - start;
                 local percentPoint = start + duration * percent / 100
-                local currentTime = GetTime()
 
-                if currentTime * 1000 > percentPoint - SharedConfiguration.latency then
+                if GetTime() > (percentPoint / 1000) - SharedConfiguration.latency then
                     callback(object, name, x, y, z)
                 end
             end
