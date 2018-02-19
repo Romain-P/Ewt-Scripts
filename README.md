@@ -66,6 +66,7 @@ See more specific functions directly in the file `shared.lua`
 ````lua
     -- Take a callback(object, name, position) that gonna be called for each map object.
     -- Return true in the callback to break the loop, false otherwise
+    -- /!\ This function doesnt hold the callback, it performs only one loop
     function IterateObjects(callback)
 
     -- Register a callback(object, name, position) that gonna be called while iterating world map objects
