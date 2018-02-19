@@ -88,62 +88,9 @@ See more specific functions directly in the file `shared.lua`
     -- Make this macro and press it to heal the unit, yourself in this example
     /script Heal(player)
 ```
-
 * `Stealth Spot`: Analyses the world map objects and spot all stealth players with the defined spellId (class depending)
-```lua
-    Configuration = {
-        -- A spell that gonna be casted on stealthed targets
-        STEALTH_SPOT = {
-            ENABLED = true,
-            SPELL_ID = PriestSpells.SWD
-        },
-    }
-```
-
 * `Auto Instant Controls Break`: Breaks any instant control from any object of the world map
-```lua
-    Configuration = {
-        -- Spell list to swd when casted on you
-        SWD_INSTANT_CONTROL = {
-            ENABLED = true,
-            SPELL_LIST = {
-                HunterSpells.SCATTER,
-                DkSpells.HUNGERING_COLD,
-                RogueSpells.BLIND,
-                RogueSpells.GOUGE,
-                PaladinSpells.REPENTENCE
-            }
-        }
-    }
-```
-
 * `Auto Friendly Dispel`: Dispels your party members when they got specific auras
-```lua
-    Configuration = {
-        -- Dispel list on party
-        AUTO_DISPEL = {
-            ENABLED = true,
-            AURA_LIST = {
-                Auras.HOJ,
-                Auras.REPENTANCE,
-                Auras.SEDUCTION,
-                Auras.SEDUCTION2,
-                Auras.COUNTERSPELL
-            }
-        }
-    }
-```
-
 * `Auto Mass Dispel`: Automatically cast `Mass Dispel` on players with the defined aura list. This feature has to be reviewed to calculate a new position when the paladin isnt in direct `LoS` or `15 yards away` (15 yards of radius)
 
-```lua
-    Configuration = {
-        MASS_DISPELL = {
-            ENABLED = true,
-            AURA_LIST = {
-                Auras.DIVINE_SHIELD,
-                Auras.ICEBLOCK
-            }
-        }
-    }
-````
+See @Configuration for more details en customisation
