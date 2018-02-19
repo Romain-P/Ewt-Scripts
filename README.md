@@ -120,5 +120,5 @@ See more specific functions directly in the file `shared.lua`
     }
 ```
 
-* `Auto Mass Dispel`: Automatically cast Mass Dispel on a paladin using Divine Shield on the world map. This feature has to be reviewed to calculate a new position when the paladin isnt in direct LoS or 15 yards away (15 yards of radius)
+* `Auto Mass Dispel`: Automatically cast `Mass Dispel` on a paladin using `Divine Shield` on the world map. This feature has to be reviewed to calculate a new position when the paladin isnt in direct `LoS` or `15 yards away` (15 yards of radius)
 
