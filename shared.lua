@@ -5,6 +5,7 @@ if not shared then shared = true
     SharedConfiguration = {
         melee_range = 7,
         gcd_value = 1.5,
+        latency = 0.08, -- latency in seconds
 
         Totems = {
             TREMOR = "Tremor Totem",
@@ -33,6 +34,9 @@ if not shared then shared = true
     player = "player"
     pet = "pet"
     player_name = UnitName(player)
+
+    overpowered = nil
+
     objectTimer = -1
     analizeTimer = -1
     simpleTimer = -1
@@ -202,6 +206,26 @@ if not shared then shared = true
                 select(11, UnitAura(unit, SpellNames[id])) == id
     end
 
+    -- Return true if a target may be cast-interrupted
+    function ShouldntCast()
+        dangerous_cast = false
+
+        local enemies = GetEnemies()
+
+        for i=1, #enemies do
+            local unit = enemies[i]
+            if HasAura(Auras.OVERPOWER_PROC, unit) then
+                dangerous_cast = true
+            end
+        end
+
+        if not dangerous_cast then
+            overpowered = nil
+        end
+
+        return overpowered ~= nil and GetTime() - overpowered < 0.5
+    end
+
     -- same as HasAura but with an array, returns array of spellIds that matched, empty if none
     function HasAuraInArray(array, unit)
         local matched = {}
@@ -338,6 +362,21 @@ if not shared then shared = true
         RegisterSimpleCallback(true, callback)
     end
 
+    -- Register an event list and associate a script to them
+    function RegisterEvents(event, enabled, script)
+        if not enabled then return end
+
+        for i=1, #event do
+            local event = event[i]
+
+            if (EventCallbacks[event] == nil) then
+                EventCallbacks[event] = {}
+            end
+
+            EventCallbacks[event][#EventCallbacks[event] + 1] = script
+        end
+    end
+
     function stopTimers(timers)
         for i=1, #timers do
             local timer = timers[i]
@@ -363,6 +402,52 @@ if not shared then shared = true
 
             Cast(Configuration.STEALTH_SPOT.SPELL_ID, object, enemy)
             TargetUnit(object)
+        end
+    )
+
+    -- Fakecast instant overpower from warriors
+    RegisterEvents({"UNIT_AURA"}, true,
+        function(_, _, unit, _, _, _, _, _, _, _, _, _, _, _, _)
+            local end_timestamp = select(7, UnitBuff(unit, SpellNames[Auras.OVERPOWER_PROC]))
+
+            if end_timestamp ~= nil then
+                local elapsed = 6 - (end_timestamp - GetTime())
+
+                if (elapsed < 0.5 + SharedConfiguration.latency) then
+                    if Configuration.FAKECAST_OVERPOWER.DEBUG then
+                        print("Performed a fake cast for overpower from ".. UnitName(unit))
+                    end
+
+                    if UnitChannelInfo(player) ~= nil then
+                        MoveForwardStart()
+                        MoveForwardStop()
+                    elseif UnitCastingInfo(player) ~= nil then
+                        SpellStopCasting()
+                    end
+
+                    overpowered = GetTime()
+                end
+            end
+        end
+    )
+
+    -- Register combat callbacks #ListenSpellsAndThen
+    RegisterEvents({"COMBAT_LOG_EVENT_UNFILTERED"}, true,
+        function(_, event, _, type, _, srcName, _, targetGuid, targetName, _, spellId, object, x, y, z)
+            local callbacks = CombatCallbacks[spellId]
+
+            if callbacks == nil then return end
+
+            for i=1, #callbacks do
+                callbacks[i](event, srcName, targetGuid, targetName, spellId, object, x, y, z)
+            end
+        end
+    )
+
+    -- Register when the player /reload or logout to remove timers
+    RegisterEvents({"PLAYER_LOGIN", "PLAYER_LOGOUT"}, true,
+        function(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _)
+            stopTimers({objectTimer, analizeTimer, simpleTimer})
         end
     )
 
@@ -398,41 +483,6 @@ if not shared then shared = true
             end
         end
     end
-
-    -- Register an event list and associate a script to them
-    function RegisterEvents(event, enabled, script)
-        if not enabled then return end
-
-        for i=1, #event do
-            local event = event[i]
-
-            if (EventCallbacks[event] == nil) then
-                EventCallbacks[event] = {}
-            end
-
-            EventCallbacks[event][#EventCallbacks[event] + 1] = script
-        end
-    end
-
-    -- Register combat callbacks #ListenSpellsAndThen
-    RegisterEvents({"COMBAT_LOG_EVENT_UNFILTERED"}, true,
-        function(_, event, _, type, _, srcName, _, targetGuid, targetName, _, spellId, object, x, y, z)
-            local callbacks = CombatCallbacks[spellId]
-
-            if callbacks == nil then return end
-
-            for i=1, #callbacks do
-                callbacks[i](event, srcName, targetGuid, targetName, spellId, object, x, y, z)
-            end
-        end
-    )
-
-    -- Register when the player /reload or logout to remove timers
-    RegisterEvents({"PLAYER_LOGIN", "PLAYER_LOGOUT"}, true,
-        function(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _)
-            stopTimers({objectTimer, analizeTimer, simpleTimer})
-        end
-    )
 
     sharedFrame = CreateFrame("FRAME", nil, UIParent)
     sharedFrame:SetScript("OnEvent",

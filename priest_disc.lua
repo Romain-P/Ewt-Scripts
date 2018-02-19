@@ -8,6 +8,12 @@ if not defined then
     Configuration = {
         SCRIPT_NAME = "Priest Discipline",
 
+        -- Enable fakecast for overpower
+        FAKECAST_OVERPOWER = {
+            ENABLED = true,
+            DEBUG = true
+        },
+
         -- A spell that gonna be casted on stealthed targets
         STEALTH_SPOT = {
             ENABLED = true,
@@ -45,9 +51,7 @@ if not defined then
                 RogueSpells.GOUGE,
                 PaladinSpells.REPENTENCE
             }
-        },
-
-        FAKECAST_OVERPOWER = true
+        }
     }
 
     RunScript(ReadFile("script/shared.lua"))
@@ -81,21 +85,6 @@ if not defined then
 
                 CastSpellByID(PriestSpells.MASS_DISPEL)
                 ClickPosition(x, y, z)
-            end
-        end
-    )
-
-    -- Fakecast instant overpower from warriors
-    RegisterEvents({"UNIT_AURA"}, Configuration.FAKECAST_OVERPOWER,
-        function(_, _, unit, _, _, _, _, _, _, _, _, _, _, _, _)
-            local end_timestamp = select(7, UnitBuff(unit, SpellNames[Auras.OVERPOWER_PROC]))
-
-            if end_timestamp ~= nil then
-                local elapsed = 30 - (end_timestamp - GetTime())
-
-                if (elapsed < 1) then
-                     SpellStopCasting()
-                end
             end
         end
     )
@@ -137,7 +126,10 @@ if not defined then
     end
 
     -- Healing rotation for a given friendly unit
+
     function Heal(unit)
+        if ShouldntCast() then return end
+
         if unit == pet then
             if UnitExists(party1pet) then
                 unit = party1pet
@@ -176,6 +168,12 @@ if not defined then
             Cast(id, unit, ally)
         end
     end
+
+    RegisterSimpleCallback(true,
+        function()
+            Heal(player)
+        end
+    )
 end
 
 if not enabled then
