@@ -418,6 +418,7 @@ if not shared then shared = true
         sharedFrame:SetScript("OnEvent", nil)
         stopTimers({objectTimer, analizeTimer, simpleTimer})
         print("[Shared-API] succesfully disabled")
+        print("["..Configuration.SCRIPT_NAME.."] is stopped")
         PlaySound("TalentScreenClose", "master")
     end
 
@@ -428,6 +429,7 @@ if not shared then shared = true
 
         if objectTimer ~= nil and analizeTimer ~= nil and simpleTimer ~= nil then
             print("[Shared-API] successfully enabled")
+            print("["..Configuration.SCRIPT_NAME.."] is running")
             PlaySound("AuctionWindowClose", "master")
             return true
         else

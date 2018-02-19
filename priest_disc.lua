@@ -6,6 +6,8 @@ if not defined then
     RunScript(ReadFile("script/shared_spells.lua"))
 
     Configuration = {
+        SCRIPT_NAME = "Priest Discipline",
+
         -- A spell that gonna be casted on stealthed targets
         STEALTH_SPOT = {
             ENABLED = true,
