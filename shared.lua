@@ -270,7 +270,7 @@ if not shared then shared = true
         end
     end
 
-    -- Listen spells and performs your callback(event, srcName, targetGuid, targetName, spellId) when one is fired
+    -- Listen spells and performs your callback(event, srcName, targetGuid, targetName, spellId, object, pos) when one is fired
     function ListenSpellsAndThen(auraArray, callback)
         for i=1, #auraArray do
             FrameCallbacks[auraArray[i]] = callback;
