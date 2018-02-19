@@ -9,6 +9,7 @@ if not defined then
         -- A spell that gonna be casted on stealthed targets
         SPOT_SPELL = PriestSpells.SWD,
 
+        -- Dispel list on party
         DISPELL_LIST = {
             Auras.HOJ,
             Auras.REPENTANCE,
@@ -17,7 +18,8 @@ if not defined then
             Auras.COUNTERSPELL
         },
 
-        SWD_INSTANT_LIST = {
+        -- Spell list of spells to swd when casted on you
+        SWD_INSTANT_CONTROL_LIST = {
             HunterSpells.SCATTER,
             DkSpells.HUNGERING_COLD,
             RogueSpells.BLIND,
@@ -29,7 +31,7 @@ if not defined then
     RunScript(ReadFile("script/shared.lua"))
 
     -- SWD Scatter, Hungering cold, blind, gouge, repentence
-    ListenSpellsAndThen(Configuration.SWD_INSTANT_LIST,
+    ListenSpellsAndThen(Configuration.SWD_INSTANT_CONTROL_LIST,
         function(_, _, _, targetName, _, object, _, _, _)
             if targetName ~= player_name then return end
             Cast(PriestSpells.SWD, object, enemy)
