@@ -271,24 +271,32 @@ if not shared then shared = true
     end
 
     -- Listen spells and performs your callback(event, srcName, targetGuid, targetName, spellId, object, pos) when one is fired
-    function ListenSpellsAndThen(auraArray, callback)
+    function ListenSpellsAndThen(auraArray, enabled, callback)
+        if not enabled then return end
+
         for i=1, #auraArray do
             FrameCallbacks[auraArray[i]] = callback;
         end
     end
 
     -- Register a callback(object, name, position) that gonna be called while iterating world map objects
-    function RegisterAdvancedCallback(callback)
+    function RegisterAdvancedCallback(callback, enabled)
+        if not enabled then return end
+
         aCallbacks[#aCallbacks + 1] = callback
     end
 
     -- Register a callback() that gonna be called in an loop
-    function RegisterSimpleCallback(callback)
+    function RegisterSimpleCallback(callback, enabled)
+        if not enabled then return end
+
         sCallbacks[#sCallbacks + 1] = callback
     end
 
     -- Applies ur callback(auraId, object, name, position) when some of the world map units has active aura present in the aura array
-    function KeepEyeOnWorld(auraArray, to_apply)
+    function KeepEyeOnWorld(auraArray, enabled, to_apply)
+        if not enabled then return end
+
         local callback =
             function(object, name, x, y, z)
                 local active_auras = HasAuraInArray(auraArray, object)
@@ -298,11 +306,13 @@ if not shared then shared = true
                 end
             end
 
-        RegisterAdvancedCallback(callback)
+        RegisterAdvancedCallback(callback, true)
     end
 
     -- Applies ur callback(auraId, unit) when some of ur units has active aura present in the aura array
-    function KeepEyeOn(units, auraArray, to_apply)
+    function KeepEyeOn(units, auraArray, enabled, to_apply)
+        if not enabled then return end
+
         local callback = function()
             for i=1, #units do
                 local unit = units[i]
@@ -316,7 +326,7 @@ if not shared then shared = true
             end
         end
 
-        RegisterSimpleCallback(callback)
+        RegisterSimpleCallback(callback, true)
     end
 
     function stopTimers(timers)
@@ -329,9 +339,8 @@ if not shared then shared = true
     end
 
     -- Spots instant trying to stealth
-    ListenSpellsAndThen(SharedConfiguration.StealthSpells,
+    ListenSpellsAndThen(SharedConfiguration.StealthSpells, Configuration.STEALTH_SPOT.ENABLED,
         function(_, _, _, _, _, object, _, _, _)
-            if not Configuration.STEALTH_SPOT.ENABLED then return end
             SpellStopCasting()
             Cast(Configuration.STEALTH_SPOT.SPELL_ID, object, enemy)
             TargetUnit(found)
@@ -339,10 +348,10 @@ if not shared then shared = true
     )
 
     -- Break stealth of world targets
-    KeepEyeOnWorld(SharedConfiguration.StealthSpells,
+    KeepEyeOnWorld(SharedConfiguration.StealthSpells, Configuration.STEALTH_SPOT.ENABLED,
         function(_, object, _, _, _, _)
-            if not HasAuraInArray(SharedConfiguration.StealthSpells, object)
-               or not Configuration.STEALTH_SPOT.ENABLED then return end
+            if not HasAuraInArray(SharedConfiguration.StealthSpells, object) then return end
+
             Cast(Configuration.STEALTH_SPOT.SPELL_ID, object, enemy)
             TargetUnit(object)
         end
