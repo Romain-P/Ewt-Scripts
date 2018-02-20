@@ -102,7 +102,7 @@ See more specific functions directly in the file `shared.lua`
     )
 ```
 
-### Common Features
+#### Common Features
 
 * `Auto Fakecast Overpower`: Fakecast instant overpowers from other warrior scripters
 * `Feign Death Bypass`: Auto re-target the hunter
