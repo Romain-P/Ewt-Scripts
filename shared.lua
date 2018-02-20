@@ -34,6 +34,8 @@ if not shared then shared = true
     player = "player"
     pet = "pet"
     player_name = UnitName(player)
+    last_target = nil
+    current_target = nil
 
     overpowered = nil
 
@@ -447,7 +449,7 @@ if not shared then shared = true
     )
 
     -- Fakecast instant overpower from warriors
-    RegisterEvents({"UNIT_AURA"}, true,
+    RegisterEvents({"UNIT_AURA"}, Configuration.FAKECAST_OVERPOWER.ENABLED,
         function(_, _, unit, _, _, _, _, _, _, _, _, _, _, _, _)
             local end_timestamp = select(7, UnitBuff(unit, SpellNames[Auras.OVERPOWER_PROC]))
 
@@ -472,6 +474,27 @@ if not shared then shared = true
         end
     )
 
+    -- Bypass feign death, retargeting automatically the hunter
+    -- TODO: mage: image mirrors
+    RegisterEvents({"PLAYER_TARGET_CHANGED"}, Configuration.FEIGNDEATH_BYPASS,
+        function(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _)
+            local new_one = UnitName(target)
+            if new_one ~= current_target then
+                last_target = current_target
+            end
+
+            current_target = new_one
+
+            if last_target ~= nil
+                    and HasAura(HunterSpells.FEIGN_DEATH, WorldObjects[last_target])
+                    and not UnitExists(target)
+                    and last_target ~= nil
+            then
+                TargetUnit(last_target)
+            end
+        end
+    )
+
     -- Register combat callbacks #ListenSpellsAndThen
     RegisterEvents({"COMBAT_LOG_EVENT_UNFILTERED"}, true,
         function(_, event, _, type, _, srcName, _, targetGuid, targetName, _, spellId, object, x, y, z)
@@ -480,7 +503,7 @@ if not shared then shared = true
             if callbacks == nil then return end
 
             for i=1, #callbacks do
-                callbacks[i](event, srcName, targetGuid, targetName, spellId, object, x, y, z)
+                callbacks[i](event, type, srcName, targetGuid, targetName, spellId, object, x, y, z)
             end
         end
     )

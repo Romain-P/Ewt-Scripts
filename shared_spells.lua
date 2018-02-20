@@ -10,7 +10,8 @@ if not shared_spells then
     }
 
     HunterSpells = {
-        SCATTER = 19503
+        SCATTER = 19503,
+        FEIGN_DEATH = 5384
     }
 
     WarriorSpells = {}
@@ -62,6 +63,7 @@ if not shared_spells then
     }
 
     Auras = {
+        FEIGN_DEATH = 5384,
         GRACE = 47930,
         COUNTERSPELL = 55021,
         WEAKENED_SOUL = 6788,

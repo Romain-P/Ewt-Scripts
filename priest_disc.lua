@@ -8,6 +8,9 @@ if not defined then
     Configuration = {
         SCRIPT_NAME = "Priest Discipline",
 
+        -- Bypass feign death, auto re-targeting
+        FEIGNDEATH_BYPASS = true,
+
         -- Enable fakecast for overpower
         FAKECAST_OVERPOWER = {
             ENABLED = true,
@@ -37,7 +40,8 @@ if not defined then
                 Auras.REPENTANCE,
                 Auras.SEDUCTION,
                 Auras.SEDUCTION2,
-                Auras.COUNTERSPELL
+                Auras.COUNTERSPELL,
+
             }
         },
 
@@ -71,7 +75,7 @@ if not defined then
 
     -- SWD Scatter, Hungering cold, blind, gouge, repentence
     ListenSpellsAndThen(Configuration.SWD_INSTANT_CONTROL.SPELL_LIST, Configuration.SWD_INSTANT_CONTROL.ENABLED,
-        function(_, _, _, targetName, _, object, _, _, _)
+        function(_, _, _, _, targetName, _, object, _, _, _)
             if targetName ~= player_name then return end
             Cast(PriestSpells.SWD, object, enemy)
         end
@@ -167,7 +171,6 @@ if not defined then
     end
 
     -- Healing rotation for a given friendly unit
-
     function Heal(unit)
         if ShouldntCast() then return end
 
