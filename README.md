@@ -116,3 +116,4 @@ See [Priest Configuration](https://github.com/Romain-P/Ewt-Scripts/blob/master/p
 * `Auto Casting Controls Break`: Swd all casting controls from any player on the map e.g sheep
 * `Auto Fakecast Overpower`: Fakecast instant overpowers from other warrior scripters
 * `Feign Death Bypass`: Auto re-target the hunter
+* `Mirror Images Bypass`: Auto re-target the mage

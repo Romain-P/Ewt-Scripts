@@ -486,15 +486,19 @@ if not shared then shared = true
 
             current_target = new_one
 
+            local retarget_mage = mage_used_mirrors ~= nil
+                    and UnitName(mage_used_mirrors.unit) == last_target
+                    and GetTime() - mage_used_mirrors.time < 5
+
             if last_target ~= nil
-                    and (HasAura(HunterSpells.FEIGN_DEATH, WorldObjects[last_target])
-                    or (mage_used_mirrors ~= nil
-                    and mage_used_mirrors.named == last_target
-                    and GetTime() - mage_used_mirrors.time < 5))
+                    and (HasAura(HunterSpells.FEIGN_DEATH, WorldObjects[last_target]) or retarget_mage)
                     and not UnitExists(target)
-                    and last_target ~= nil
             then
-                TargetUnit(last_target)
+                if retarget_mage then
+                    TargetUnit(mage_used_mirrors.unit)
+                else
+                    TargetUnit(WorldObjects[last_target])
+                end
             end
         end
     )
@@ -502,7 +506,7 @@ if not shared then shared = true
     -- Keep in memory when a mage uses image mirrors
     ListenSpellsAndThen({MageSpells.MIRROR_IMAGES}, Configuration.MAGE_MIRRORS_BYPASS,
         function(event, type, srcName, targetGuid, targetName, spellId, object, x, y, z)
-            mage_used_mirrors = {named = srcName, time = GetTime()}
+            mage_used_mirrors = {unit = object, time = GetTime()}
         end
     )
 
