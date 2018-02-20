@@ -63,6 +63,7 @@ See more specific functions directly in the file `shared.lua`
     )
 ````
 
+* Listen casting spells in the world map and perform a `callback(object, name, position)` when fired and at percent% of the cast bar
 ```lua
     function PerformCallbackOnCasts(spellArray, percent, enabled, callback);
     
