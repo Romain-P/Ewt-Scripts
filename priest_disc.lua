@@ -10,6 +10,8 @@ if not defined then
 
         -- Bypass feign death, auto re-targeting
         FEIGNDEATH_BYPASS = true,
+        -- Bypass image mirrors, auto re-targeting
+        MAGE_MIRRORS_BYPASS = true,
 
         -- Enable fakecast for overpower
         FAKECAST_OVERPOWER = {

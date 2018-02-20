@@ -38,6 +38,7 @@ if not shared then shared = true
     current_target = nil
 
     overpowered = nil
+    mage_used_mirrors = nil
 
     objectTimer = -1
     analizeTimer = -1
@@ -300,17 +301,17 @@ if not shared then shared = true
     end
 
     -- Listen spells and performs your callback(event, srcName, targetGuid, targetName, spellId, object, pos) when one is fired
-    function ListenSpellsAndThen(auraArray, enabled, callback)
+    function ListenSpellsAndThen(spellArray, enabled, callback)
         if not enabled then return end
 
-        for i=1, #auraArray do
-            local aura = auraArray[i]
+        for i=1, #spellArray do
+            local spell = spellArray[i]
 
-            if CombatCallbacks[aura] == nil then
-                CombatCallbacks[aura] = {}
+            if CombatCallbacks[spell] == nil then
+                CombatCallbacks[spell] = {}
             end
 
-            CombatCallbacks[aura][#CombatCallbacks[aura] + 1] = callback;
+            CombatCallbacks[spell][#CombatCallbacks[spell] + 1] = callback;
         end
     end
 
@@ -475,7 +476,7 @@ if not shared then shared = true
     )
 
     -- Bypass feign death, retargeting automatically the hunter
-    -- TODO: mage: image mirrors
+    -- Bypass mirror images, retargeting automatically the mage
     RegisterEvents({"PLAYER_TARGET_CHANGED"}, Configuration.FEIGNDEATH_BYPASS,
         function(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _)
             local new_one = UnitName(target)
@@ -486,12 +487,22 @@ if not shared then shared = true
             current_target = new_one
 
             if last_target ~= nil
-                    and HasAura(HunterSpells.FEIGN_DEATH, WorldObjects[last_target])
+                    and (HasAura(HunterSpells.FEIGN_DEATH, WorldObjects[last_target])
+                    or (mage_used_mirrors ~= nil
+                    and mage_used_mirrors.named == last_target
+                    and GetTime() - mage_used_mirrors.time < 5))
                     and not UnitExists(target)
                     and last_target ~= nil
             then
                 TargetUnit(last_target)
             end
+        end
+    )
+
+    -- Keep in memory when a mage uses image mirrors
+    ListenSpellsAndThen({MageSpells.MIRROR_IMAGES}, Configuration.MAGE_MIRRORS_BYPASS,
+        function(event, type, srcName, targetGuid, targetName, spellId, object, x, y, z)
+            mage_used_mirrors = {named = srcName, time = GetTime()}
         end
     )
 

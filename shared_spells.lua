@@ -21,7 +21,8 @@ if not shared_spells then
         Polymorph_rabbit = 61721,
         Polymorph_turtle = 28271,
         Polymorph_pig = 28272,
-        Polymorph_cat = 61305
+        Polymorph_cat = 61305,
+        MIRROR_IMAGES = 55342
     }
 
     WarlockSpells = {}
