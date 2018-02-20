@@ -51,7 +51,7 @@ See more specific functions directly in the file `shared.lua`
 
 * Listen casted spells in the world map and perform a `callback(event, srcName, targetGuid, targetName, spellId, object, pos)` when one is fired
 ````lua
-    function ListenSpellsAndThen(auraArray, enabled, callback);
+    function ListenSpellsAndThen(spellArray, enabled, callback);
     
     -- Naive Example
     -- This function holds a callback in a shared table
@@ -62,6 +62,19 @@ See more specific functions directly in the file `shared.lua`
         end
     )
 ````
+
+```lua
+    function PerformCallbackOnCasts(spellArray, percent, enabled, callback);
+    
+    -- Naive Example
+    -- This function holds a callback in a shared table
+    -- This callback is gonna kick any mage casting sheep at 90% of castbar
+    PerformCallbackOnCasts({MageSpells.SHEEP}, 90, true,
+         function(object, name, x, y, z)
+            CastSpellByID(RogueSpells.KICK, object)
+         end
+    )
+```
 
 * See also 'primitive' functions to register a custom callback
 ````lua
