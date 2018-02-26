@@ -22,12 +22,12 @@ See more specific functions directly in the file `shared.lua`
 
 * Apply a `callback(auraId, object, name, position)` when some of the world map units has an aura present in the aura array
 ````lua
-    function KeepEyeOnWorld(auraArray, enabled, callback);
+    function KeepEyeOnWorld(auraArray, filters, enabled, callback);
     
     -- Naive Example
     -- This function holds an advanced callback in a shared table 
     -- The callback is gonna cast mass dispel when a player is found with divine shield in the world map
-    KeepEyeOnWorld({Auras.DIVINE_SHIELD}, true, -- true to enable the feature
+    KeepEyeOnWorld({Auras.DIVINE_SHIELD}, nil, true, -- true to enable the feature
         function(_, object, x, y, z)
             CastSpellByID(PriestSpells.MASS_DISPEL)
             ClickPosition(x, y, z)
@@ -37,12 +37,12 @@ See more specific functions directly in the file `shared.lua`
 
 * Apply a `callback(auraId, unit)` when some of ur units has active aura present in the aura array
 ````lua
-    function KeepEyeOn(units, auraArray, enabled, to_apply);
+    function KeepEyeOn(units, auraArray, filters, enabled, to_apply);
     
     -- Naive Example
     -- This function holds a simple callback in a shared table
     -- The callback is gonna dispel party1 and party when they are under HOJ
-    KeepEyeOn({party1, party2}, {Auras.HOJ}, true, -- true to enable the feature
+    KeepEyeOn({party1, party2}, {Auras.HOJ}, nil, true, -- true to enable the feature
         function(auraId, unit)
             CastSpellByID(PaladinSpells.CLEANSE, unit)
         end
@@ -51,7 +51,7 @@ See more specific functions directly in the file `shared.lua`
 
 * Listen casted spells in the world map and perform a `callback(event, srcName, targetGuid, targetName, spellId, object, pos)` when one is fired
 ````lua
-    function ListenSpellsAndThen(spellArray, enabled, callback);
+    function ListenSpellsAndThen(spellArray, filters, enabled, callback);
     
     -- Naive Example
     -- This function holds a callback in a shared table
@@ -65,7 +65,7 @@ See more specific functions directly in the file `shared.lua`
 
 * Listen casting spells in the world map and perform a `callback(object, name, position)` when fired and at percent% of the cast bar
 ```lua
-    function PerformCallbackOnCasts(spellArray, percent, enabled, callback);
+    function PerformCallbackOnCasts(spellArray, percent, filters, enabled, callback);
     
     -- Naive Example
     -- This function holds a callback in a shared table
@@ -85,20 +85,41 @@ See more specific functions directly in the file `shared.lua`
     function IterateObjects(enabled, callback)
 
     -- Register a callback(object, name, position) that gonna be called while iterating world map objects
-    function RegisterAdvancedCallback(enabled, callback);
+    function RegisterAdvancedCallback(enabled, filters, callback);
 
     -- Register a callback() that gonna be called in an loop
-    function RegisterSimpleCallback(enabled, callback);
+    function RegisterSimpleCallback(enabled, filters, callback);
 ````
 
 * Listen events and apply custom scripts `callback(self, event, arg1, type, srcGuid, srcName, arg2, targetGuid, targetName, arg3, spellId, object, x, y, z)` when they are fired
 ```lua
     -- Register an event list and associate a script(
-    function RegisterEvents(event, enabled, script);
+    function RegisterEvents(event, filters, enabled, script);
     
-    RegisterEvents({PLAYER_TOTEM_UPDATE}, true, -- true to enable the feature
+    RegisterEvents({PLAYER_TOTEM_UPDATE}, nil, true, -- true to enable the feature
         function(_, _, _, _, _, srcName, _, _, _, _, _, player_unit, posx, posy, posz)
             print("The player "..srcName.." spawned or destroyed a totem")
+        end
+    )
+```
+
+#### Filters
+
+As you had see, you can add additional filters to some shared functions.  
+These filters allow you to perform some checks to apply or not the callback.  
+For example, you can apply a filter that check the party health: if the whole party members health is upper 40% for example.  
+You can find all filters in `shared_filters.lua`, see below an example
+
+```lua
+    -- This is a custom filter. The callback will be applied until the player isnt in arena
+    local custom_filter = function() return IsArena() end
+    
+    -- This callback is gonna dispel party1/2 until their life is below 40%
+    -- The filter: filter_party_health is a filter defined in shared_filters.lua
+    -- You also can add custom filters
+    KeepEyeOn({party1, party2}, {Auras.HOJ}, {filter_party_health, custom_filter}, true,
+        function(_, unit)
+            CastSpellByID(PriestSpells.DISPEL_MAGIC, unit)
         end
     )
 ```
