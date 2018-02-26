@@ -76,6 +76,15 @@ if not defined then
             }
         },
 
+        -- Dispel list on world map enemies
+        AUTO_ENEMY_DISPEL = {
+            ENABLED = true,
+            FILTERS = {filter_party_health},
+            AURA_LIST = {
+
+            }
+        },
+
         -- Spell list to swd when casted on you
         SWD_INSTANT_CONTROL = {
             ENABLED = true,
@@ -122,6 +131,16 @@ if not defined then
 
         function(_, unit)
             Cast(PriestSpells.DISPEL_MAGIC, unit, ally)
+        end
+    )
+
+    -- Keep an eye on world map enemy units: dispels the dispel list
+    KeepEyeOnWorld(Configuration.AUTO_ENEMY_DISPEL.AURA_LIST,
+        Configuration.AUTO_ENEMY_DISPEL.FILTERS,
+        Configuration.AUTO_ENEMY_DISPEL.ENABLED,
+
+        function(_, object, _, _, _, _)
+            Cast(PriestSpells.DISPEL_MAGIC, object, enemy)
         end
     )
 

@@ -178,5 +178,6 @@ See [Priest Configuration](https://github.com/Romain-P/Ewt-Scripts/blob/master/p
 ```
 * `Auto Instant Controls Break`: Swd all instant controls from any player on the map e.g gouge
 * `Auto Friendly Dispel`: Dispels your party members when they got specific auras
+* `Auto Enemy Dispel`: Dispels the given lists when found on the world map enemies
 * `Auto Mass Dispel`: Automatically cast `Mass Dispel` on players with the defined aura list. This feature has to be reviewed to calculate a new position when the paladin isnt in direct `LoS` or `15 yards away` (15 yards of radius)
 * `Auto Casting Controls Break`: Swd all casting controls from any player on the map e.g sheep
