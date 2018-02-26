@@ -160,6 +160,8 @@ if not defined then
             end
         )
 
+        if not priority then return end
+
         if MeleeRange(priority) then
             RunMacroText("/startattack [@"..priority.."]")
         else
