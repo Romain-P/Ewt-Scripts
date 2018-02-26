@@ -6,47 +6,50 @@ if not defined then
     RunScript(ReadFile("script/shared_init.lua"))
 
     Configuration = {
-        SCRIPT_NAME = "Priest Discipline",
+        -- Common features between classes
+        Shared = {
+            SCRIPT_NAME = "Priest Discipline",
 
-        -- 2vs2 feature: When target=arena1, automatically focus=arena2 and vice-versa
-        ARENA_AUTO_FOCUS = true,
+            -- 2vs2 feature: When target=arena1, automatically focus=arena2 and vice-versa
+            ARENA_AUTO_FOCUS = true,
 
-        -- Bypass feign death, auto re-targeting
-        FEIGNDEATH_BYPASS = true,
-        -- Bypass image mirrors, auto re-targeting
-        MAGE_MIRRORS_BYPASS = true,
+            -- Bypass feign death, auto re-targeting
+            FEIGNDEATH_BYPASS = true,
+            -- Bypass image mirrors, auto re-targeting
+            MAGE_MIRRORS_BYPASS = true,
 
-        -- Fakecast rogue shadow step + kick / Warrior swap stance + pummel
-        -- TODO: shield equiped
-        FAKECAST_INTERRUPTS = true,
+            -- Fakecast rogue shadow step + kick / Warrior swap stance + pummel
+            -- TODO: shield equiped, check health or find the offset
+            FAKECAST_INTERRUPTS = true,
 
-        -- Enable fakecast for overpower
-        FAKECAST_OVERPOWER = {
-            ENABLED = true,
-            DEBUG = true
-        },
-
-        -- Automatically breaks grounding totem, reflect
-        INTELLIGENT_BREAKS = {
-            ENABLED = true,
-            FILTERS = {filter_party_health},
-            STOPCASTING = true,
-            SPELL_BREAKER = PriestSpells.MIND_SMOOTHE,
-            SPELL_LIST = {
-                WarriorSpells.REFLECT,
-                ShamanSpells.GROUNDING_TOTEM
+            -- Enable fakecast for overpower
+            FAKECAST_OVERPOWER = {
+                ENABLED = true,
+                DEBUG = true
             },
-            AURA_LIST = {
-                Auras.GROUNDING_TOTEM,
-                Auras.REFLECT,
-                Auras.PROT_REFLECT
-            }
-        },
 
-        -- A spell that gonna be casted on stealthed targets
-        STEALTH_SPOT = {
-            ENABLED = true,
-            SPELL_ID = PriestSpells.SWD
+            -- Automatically breaks grounding totem, reflect
+            INTELLIGENT_BREAKS = {
+                ENABLED = true,
+                FILTERS = {filter_party_health},
+                STOPCASTING = true,
+                SPELL_BREAKER = PriestSpells.MIND_SMOOTHE,
+                SPELL_LIST = {
+                    WarriorSpells.REFLECT,
+                    ShamanSpells.GROUNDING_TOTEM
+                },
+                AURA_LIST = {
+                    Auras.GROUNDING_TOTEM,
+                    Auras.REFLECT,
+                    Auras.PROT_REFLECT
+                }
+            },
+
+            -- A spell that gonna be casted on stealthed targets
+            STEALTH_SPOT = {
+                ENABLED = true,
+                SPELL_ID = PriestSpells.SWD
+            }
         },
 
         -- Auras on enemy to mass dispel

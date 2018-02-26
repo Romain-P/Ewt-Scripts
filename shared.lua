@@ -390,12 +390,12 @@ if not shared then shared = true
 
     -- Spots instant trying to stealth
     ListenSpellsAndThen(SharedConfiguration.StealthSpells,
-        Configuration.STEALTH_SPOT.FILTERS,
-        Configuration.STEALTH_SPOT.ENABLED,
+        Configuration.Shared.STEALTH_SPOT.FILTERS,
+        Configuration.Shared.STEALTH_SPOT.ENABLED,
 
         function(_, _, _, _, _, _, object, _, _, _)
             StopCasting()
-            Cast(Configuration.STEALTH_SPOT.SPELL_ID, object, enemy)
+            Cast(Configuration.Shared.STEALTH_SPOT.SPELL_ID, object, enemy)
             TargetUnit(found)
         end
     )
@@ -403,7 +403,7 @@ if not shared then shared = true
     -- Fakecast shadowstep + kick / berzek + pummel
     ListenSpellsAndThen({WarriorSpells.BERZERK_STANCE, RogueSpells.SHADOWSTEP},
         nil,
-        Configuration.FAKECAST_INTERRUPTS,
+        Configuration.Shared.FAKECAST_INTERRUPTS,
 
         function(event, type, srcName, targetGuid, targetName, spellId, object, x, y, z)
             if targetName == player_name or
@@ -414,9 +414,9 @@ if not shared then shared = true
     )
 
     -- While a player has one of the defined auras in the list, it gonna try to cast the breaker spell
-    ListenSpellsAndThen(Configuration.INTELLIGENT_BREAKS.SPELL_LIST,
-        Configuration.INTELLIGENT_BREAKS.FILTERS,
-        Configuration.INTELLIGENT_BREAKS.ENABLED and Configuration.INTELLIGENT_BREAKS.STOPCASTING,
+    ListenSpellsAndThen(Configuration.Shared.INTELLIGENT_BREAKS.SPELL_LIST,
+        Configuration.Shared.INTELLIGENT_BREAKS.FILTERS,
+        Configuration.Shared.INTELLIGENT_BREAKS.ENABLED and Configuration.Shared.INTELLIGENT_BREAKS.STOPCASTING,
 
         function(_, _, _, _, _, _, object, _, _, _)
             StopCasting()
@@ -424,37 +424,37 @@ if not shared then shared = true
     )
 
     -- Listen casted spells for stopcasting if needed for intelligent breaks
-    KeepEyeOnWorld(Configuration.INTELLIGENT_BREAKS.AURA_LIST,
-        Configuration.INTELLIGENT_BREAKS.FILTERS,
-        Configuration.INTELLIGENT_BREAKS.ENABLED,
+    KeepEyeOnWorld(Configuration.Shared.INTELLIGENT_BREAKS.AURA_LIST,
+        Configuration.Shared.INTELLIGENT_BREAKS.FILTERS,
+        Configuration.Shared.INTELLIGENT_BREAKS.ENABLED,
 
         function(_, object, _, _, _, _)
-            if not Configuration.INTELLIGENT_BREAKS.STOPCASTING
+            if not Configuration.Shared.INTELLIGENT_BREAKS.STOPCASTING
                     and UnitCastInfo(player) ~= nil then
                 return
             end
 
-            Cast(Configuration.INTELLIGENT_BREAKS.SPELL_BREAKER, object, enemy)
+            Cast(Configuration.Shared.INTELLIGENT_BREAKS.SPELL_BREAKER, object, enemy)
         end
     )
 
     -- Break stealth of world targets
     KeepEyeOnWorld(SharedConfiguration.StealthSpells,
-        Configuration.STEALTH_SPOT.FILTERS,
-        Configuration.STEALTH_SPOT.ENABLED,
+        Configuration.Shared.STEALTH_SPOT.FILTERS,
+        Configuration.Shared.STEALTH_SPOT.ENABLED,
 
         function(_, object, _, _, _, _)
             if not HasAuraInArray(SharedConfiguration.StealthSpells, object) then return end
 
-            Cast(Configuration.STEALTH_SPOT.SPELL_ID, object, enemy)
+            Cast(Configuration.Shared.STEALTH_SPOT.SPELL_ID, object, enemy)
             TargetUnit(object)
         end
     )
 
     -- Fakecast instant overpower from warriors
     RegisterEvents({"UNIT_AURA"},
-        Configuration.FAKECAST_OVERPOWER.FILTERS,
-        Configuration.FAKECAST_OVERPOWER.ENABLED,
+        Configuration.Shared.FAKECAST_OVERPOWER.FILTERS,
+        Configuration.Shared.FAKECAST_OVERPOWER.ENABLED,
 
         function(_, _, unit, _, _, _, _, _, _, _, _, _, _, _, _)
             local end_timestamp = select(7, UnitBuff(unit, SpellNames[Auras.OVERPOWER_PROC]))
@@ -463,7 +463,7 @@ if not shared then shared = true
                 local elapsed = 6 - (end_timestamp - GetTime())
 
                 if (elapsed < 0.5 + SharedConfiguration.latency) then
-                    if Configuration.FAKECAST_OVERPOWER.DEBUG then
+                    if Configuration.Shared.FAKECAST_OVERPOWER.DEBUG then
                         print("Performed a fake cast for overpower from ".. UnitName(unit))
                     end
 
@@ -476,7 +476,7 @@ if not shared then shared = true
 
     -- Bypass feign death, retargeting automatically the hunter
     -- Bypass mirror images, retargeting automatically the mage
-    RegisterEvents({"PLAYER_TARGET_CHANGED"}, nil, Configuration.FEIGNDEATH_BYPASS,
+    RegisterEvents({"PLAYER_TARGET_CHANGED"}, nil, Configuration.Shared.FEIGNDEATH_BYPASS,
         function(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _)
             local new_one = UnitName(target)
             if new_one ~= current_target then
@@ -503,7 +503,7 @@ if not shared then shared = true
     )
 
     -- Arena 2vs2 help feature
-    RegisterEvents({"PLAYER_TARGET_CHANGED"}, nil, Configuration.ARENA_AUTO_FOCUS,
+    RegisterEvents({"PLAYER_TARGET_CHANGED"}, nil, Configuration.Shared.ARENA_AUTO_FOCUS,
         function(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _)
             if not IsArena(ArenaMode.V2) then return end
 
@@ -520,7 +520,7 @@ if not shared then shared = true
     )
 
     -- Keep in memory when a mage uses image mirrors
-    ListenSpellsAndThen({MageSpells.MIRROR_IMAGES}, nil, Configuration.MAGE_MIRRORS_BYPASS,
+    ListenSpellsAndThen({MageSpells.MIRROR_IMAGES}, nil, Configuration.Shared.MAGE_MIRRORS_BYPASS,
         function(event, type, srcName, targetGuid, targetName, spellId, object, x, y, z)
             mage_used_mirrors = {unit = object, time = GetTime()}
         end
@@ -599,7 +599,7 @@ if not shared then shared = true
         sharedFrame:UnregisterAllEvents()
         stopTimers({objectTimer, analizeTimer, simpleTimer})
         print("[Shared-API] succesfully disabled")
-        print("["..Configuration.SCRIPT_NAME.."] is stopped")
+        print("["..Configuration.Shared.SCRIPT_NAME.."] is stopped")
         PlaySound("TalentScreenClose", "master")
     end
 
@@ -614,7 +614,7 @@ if not shared then shared = true
 
         if objectTimer ~= nil and analizeTimer ~= nil and simpleTimer ~= nil then
             print("[Shared-API] successfully enabled")
-            print("["..Configuration.SCRIPT_NAME.."] is running")
+            print("["..Configuration.Shared.SCRIPT_NAME.."] is running")
             PlaySound("AuctionWindowClose", "master")
             return true
         else
