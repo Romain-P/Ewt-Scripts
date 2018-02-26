@@ -128,18 +128,18 @@ Just put `nil` if no filter wanted.
 Some configurations don't have filters by default.  
 You can add filters to any configuration e.g below  
 ```lua
-        -- Spell list to swd when casted on you
-        SWD_INSTANT_CONTROL = {
-            ENABLED = true,
-            FILTERS = {filter_party_health}, -- you can remove this line if you dont want any filter
-            SPELL_LIST = {
-                HunterSpells.SCATTER,
-                DkSpells.HUNGERING_COLD,
-                RogueSpells.BLIND,
-                RogueSpells.GOUGE,
-                PaladinSpells.REPENTENCE
-            }
+    -- Spell list to swd when casted on you
+    SWD_INSTANT_CONTROL = {
+        ENABLED = true,
+        FILTERS = {filter_party_health}, -- you can remove this line if you dont want any filter
+        SPELL_LIST = {
+            HunterSpells.SCATTER,
+            DkSpells.HUNGERING_COLD,
+            RogueSpells.BLIND,
+            RogueSpells.GOUGE,
+            PaladinSpells.REPENTENCE
         }
+    }
 ```
 
 #### Common Features
