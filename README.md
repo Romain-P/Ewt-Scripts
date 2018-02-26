@@ -128,6 +128,11 @@ See [Priest Configuration](https://github.com/Romain-P/Ewt-Scripts/blob/master/p
     -- Make this macro and press it to dps the unit, target in this example
     /script Dps(target)
 ```
+* `Dot Rotation`: applies `Shadow Word: Pain` and `Devouring Plague` to the given unit (still looking at the duration of the dots)
+```lua
+    -- Make this macro and press it to dot the unit, target in this example
+    /script Dot(target)
+```
 * `Stealth Spot`: Analyses the world map objects and spot all stealth players with the defined spellId (class depending)
 * `Auto Instant Controls Break`: Swd all instant controls from any player on the map e.g gouge
 * `Auto Friendly Dispel`: Dispels your party members when they got specific auras

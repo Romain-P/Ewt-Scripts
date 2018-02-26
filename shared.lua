@@ -199,7 +199,7 @@ if not shared then shared = true
 
     -- Return true if a given unit is under <id> dot for more than 3 seconds
     function HasDot(id, unit)
-        local dot = select(7, UnitDebuff("target", GetSpellInfo(id)))
+        local dot = select(7, UnitDebuff(target, SpellNames[id]))
         return dot ~= nil and dot - GetTime() >= 3
     end
 

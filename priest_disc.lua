@@ -11,7 +11,7 @@ if not defined then
         -- Bypass feign death, auto re-targeting
         FEIGNDEATH_BYPASS = true,
         -- Bypass image mirrors, auto re-targeting
-        MAGE_MIRRORS_BYPASS = true,
+        MAGE_MIRRORS_BYPASS = false,
 
         -- Enable fakecast for overpower
         FAKECAST_OVERPOWER = {
@@ -172,7 +172,17 @@ if not defined then
         Cast(PriestSpells.MIND_BLAST, unit, enemy)
     end
 
+    -- Dot a given unit with shadow word: pain + devouring plague
+    function Dot(unit)
+        if not HasDot(Auras.DOT_PAIN, unit) then
+            Cast(PriestSpells.SHADOWORD_PAIN, unit, enemy)
+        elseif not HasDot(Auras.DOT_PLAGUE, unit) then
+            Cast(PriestSpells.DEVOURING_PLAGUE, unit, enemy)
+        end
+    end
+
     -- Healing rotation for a given friendly unit
+    -- TODO: CALL HEAL AGAIN WHEN FAKECASTED, BUT CALL ONLY INSTANT SPELLS
     function Heal(unit)
         if ShouldntCast() then return end
 
@@ -218,8 +228,8 @@ end
 
 if not enabled then
     OnEnable()
-    enabled = true
 else
     OnDisable()
-    enabled = false
 end
+
+enabled = not enabled

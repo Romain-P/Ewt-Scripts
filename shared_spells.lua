@@ -49,6 +49,8 @@ if not shared_spells then
     }
 
     PriestSpells = {
+        DEVOURING_PLAGUE = 48300,
+        SHADOWORD_PAIN = 48125,
         PENANCE = 53007,
         DISPEL_MAGIC = 988,
         FLASH_HEAL = 48071,
@@ -64,6 +66,8 @@ if not shared_spells then
     }
 
     Auras = {
+        DOT_PAIN = 48125,
+        DOT_PLAGUE = 48300,
         FEIGN_DEATH = 5384,
         GRACE = 47930,
         COUNTERSPELL = 55021,
