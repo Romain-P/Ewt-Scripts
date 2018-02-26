@@ -4,7 +4,7 @@ All features in need are performing `LoS`, `range`, `cooldown` and `unit type` c
 Each analysis doesnt need to have defined unit e.g `target`/`focus`/`arena123`. The script performs checks analysing all map objects  
 `No fps`are taken with my scripts, I `optimized` all the code
 
-If you like my project, you can star it or even give me a donation ;)
+* If you like my project, you can star it or even give me a donation ;)  
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SHFWRJ56GGZDE)
 
 ### Installation
