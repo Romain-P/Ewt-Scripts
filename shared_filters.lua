@@ -20,5 +20,5 @@ if not shared_filters then
     end
 
     -- Check if the whole party members have their life upper 40%
-    filter_party_health = function() HealthNotUnder(Friends, 40) end
+    filter_party_health = function() HealthNotUnder(Party, 40) end
 end
