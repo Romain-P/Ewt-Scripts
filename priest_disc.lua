@@ -16,6 +16,10 @@ if not defined then
         -- Bypass image mirrors, auto re-targeting
         MAGE_MIRRORS_BYPASS = true,
 
+        -- Fakecast rogue shadow step + kick / Warrior swap stance + pummel
+        -- TODO: shield equiped
+        FAKECAST_INTERRUPTS = true,
+
         -- Enable fakecast for overpower
         FAKECAST_OVERPOWER = {
             ENABLED = true,

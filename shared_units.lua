@@ -19,6 +19,7 @@ if not shared_units then
     arena2 = "arena2"
     arena3 = "arena3"
     player_name = UnitName(player)
+    player_unit = GetObjectWithGUID(UnitGUID(player))
 
     Party = {
         "party1",

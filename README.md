@@ -150,7 +150,7 @@ You can add filters to any configuration e.g below
 * `Stealth Spot`: Analyses the world map objects and spot all stealth players with the defined spellId (class depending)
 * `Arena Auto Focus`: Auto focus arena1/arena2 depending of your target (works on 2s only)
 * `Auto Intelligent Break`: stopcasting and cast a defined spell on reflect/grounding totem
-
+* `Fakecast pummel/kick`: fakecast kick when shadowstep is used, same for pummel when berzek stance used
 #### Priest Scripts
 
 See [Priest Configuration](https://github.com/Romain-P/Ewt-Scripts/blob/master/priest_disc.lua#L8) for more details and customisation

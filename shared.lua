@@ -400,6 +400,19 @@ if not shared then shared = true
         end
     )
 
+    -- Fakecast shadowstep + kick / berzek + pummel
+    ListenSpellsAndThen({WarriorSpells.BERZERK_STANCE, RogueSpells.SHADOWSTEP},
+        nil,
+        Configuration.FAKECAST_INTERRUPTS,
+
+        function(event, type, srcName, targetGuid, targetName, spellId, object, x, y, z)
+            if targetName == player_name or
+                    (spellId == WarriorSpells.BERZEK_STANCE and MeleeRange(object)) then
+                StopCasting()
+            end
+        end
+    )
+
     -- While a player has one of the defined auras in the list, it gonna try to cast the breaker spell
     ListenSpellsAndThen(Configuration.INTELLIGENT_BREAKS.SPELL_LIST,
         Configuration.INTELLIGENT_BREAKS.FILTERS,

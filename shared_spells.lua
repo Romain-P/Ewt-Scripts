@@ -15,7 +15,8 @@ if not shared_spells then
     }
 
     WarriorSpells = {
-        REFLECT = 23920
+        REFLECT = 23920,
+        BERZERK_STANCE = 2458
     }
 
     MageSpells = {
@@ -49,7 +50,8 @@ if not shared_spells then
         VANISH = 26889,
         STEALTH = 1784,
         BLIND = 2084,
-        GOUGE = 1776
+        GOUGE = 1776,
+        SHADOWSTEP = 36554
     }
 
     PriestSpells = {
