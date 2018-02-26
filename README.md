@@ -108,6 +108,7 @@ See more specific functions directly in the file `shared.lua`
 * `Auto Fakecast Overpower`: Fakecast instant overpowers from other warrior scripters
 * `Feign Death Bypass`: Auto re-target the hunter
 * `Mirror Images Bypass`: Auto re-target the mage
+* `Arena Auto Focus`: Auto focus arena1/arena2 depending of your target (works on 2s only)
 
 #### Priest Scripts
 
