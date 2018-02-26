@@ -56,7 +56,7 @@ See more specific functions directly in the file `shared.lua`
     -- Naive Example
     -- This function holds a callback in a shared table
     -- This callback is gonna Charge a rogue when he tries to be stealth
-    ListenSpellsAndThen({RogueSpells.VANISH, RogueSpells.STEALTH}, true, -- true to enable the feature
+    ListenSpellsAndThen({RogueSpells.VANISH, RogueSpells.STEALTH}, nil, true, -- true to enable the feature
         function(event, srcName, targetGuid, targetName, spellId, object, x, y, z)
             CastSpellByID(WarriorSpells.CHARGE, object)
         end
@@ -70,7 +70,7 @@ See more specific functions directly in the file `shared.lua`
     -- Naive Example
     -- This function holds a callback in a shared table
     -- This callback is gonna kick any mage casting sheep at 90% of castbar
-    PerformCallbackOnCasts({MageSpells.SHEEP}, 90, true,
+    PerformCallbackOnCasts({MageSpells.SHEEP}, 90, nil, true,
          function(object, name, x, y, z)
             CastSpellByID(RogueSpells.KICK, object)
          end
