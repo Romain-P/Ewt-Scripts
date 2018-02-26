@@ -3,7 +3,7 @@
 
 if not defined then
     defined = true
-    RunScript(ReadFile("script/shared_spells.lua"))
+    RunScript(ReadFile("script/shared_init.lua"))
 
     Configuration = {
         SCRIPT_NAME = "Priest Discipline",
@@ -25,6 +25,7 @@ if not defined then
         -- Automatically breaks grounding totem, reflect
         INTELLIGENT_BREAKS = {
             ENABLED = true,
+            FILTERS = {filter_party_health},
             STOPCASTING = true,
             SPELL_BREAKER = PriestSpells.MIND_SMOOTHE,
             SPELL_LIST = {
@@ -47,6 +48,7 @@ if not defined then
         -- Auras on enemy to mass dispel
         MASS_DISPEL = {
             ENABLED = true,
+            FILTERS = {filter_party_health},
             AURA_LIST = {
                 Auras.DIVINE_SHIELD,
                 Auras.ICEBLOCK
@@ -56,6 +58,7 @@ if not defined then
         -- Dispel list on party
         AUTO_DISPEL = {
             ENABLED = true,
+            FILTERS = {filter_party_health},
             AURA_LIST = {
                 Auras.HOJ,
                 Auras.REPENTANCE,
@@ -95,7 +98,10 @@ if not defined then
     RunScript(ReadFile("script/shared.lua"))
 
     -- SWD Scatter, Hungering cold, blind, gouge, repentence
-    ListenSpellsAndThen(Configuration.SWD_INSTANT_CONTROL.SPELL_LIST, Configuration.SWD_INSTANT_CONTROL.ENABLED,
+    ListenSpellsAndThen(Configuration.SWD_INSTANT_CONTROL.SPELL_LIST,
+        Configuration.SWD_INSTANT_CONTROL.FILTERS,
+        Configuration.SWD_INSTANT_CONTROL.ENABLED,
+
         function(_, _, _, _, targetName, _, object, _, _, _)
             if targetName ~= player_name then return end
             Cast(PriestSpells.SWD, object, enemy)
@@ -103,14 +109,20 @@ if not defined then
     )
 
     -- Keep an eye on party units: dispels the dispel list
-    KeepEyeOn(Party, Configuration.AUTO_DISPEL.AURA_LIST, Configuration.AUTO_DISPEL.ENABLED,
+    KeepEyeOn(Party, Configuration.AUTO_DISPEL.AURA_LIST,
+        Configuration.AUTO_DISPEL.FILTERS,
+        Configuration.AUTO_DISPEL.ENABLED,
+
         function(_, unit)
             Cast(PriestSpells.DISPEL_MAGIC, unit, ally)
         end
     )
 
     -- Keep an eye on world objects: md divine shield
-    KeepEyeOnWorld(Configuration.MASS_DISPEL.AURA_LIST, Configuration.MASS_DISPEL.ENABLED,
+    KeepEyeOnWorld(Configuration.MASS_DISPEL.AURA_LIST,
+        Configuration.MASS_DISPEL.FILTERS,
+        Configuration.MASS_DISPEL.ENABLED,
+
         function(_, object, _, x, y, z)
             local MD_RANGE = 30 -- naive md script, TODO: calcul position when not in los or 5 yards away
 
@@ -131,6 +143,7 @@ if not defined then
     PerformCallbackOnCasts(
         Configuration.SWD_CASTING_CONTROL.SPELL_LIST,
         Configuration.SWD_CASTING_CONTROL.PERCENT,
+        Configuration.SWD_CASTING_CONTROL.FILTERS,
         Configuration.SWD_CASTING_CONTROL.ENABLED,
             function(object, _, _, _, _)
                 if not Cast(PriestSpells.SWD, object, enemy) then

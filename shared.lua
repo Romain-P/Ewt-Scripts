@@ -22,21 +22,6 @@ if not shared then shared = true
         }
     }
 
-    enemy = "enemy"
-    ally = "ally"
-    target = "target"
-    party1 = "party1"
-    party1pet = "party1pet"
-    party2 = "party2"
-    party2pet = "party2pet"
-    party3 = "party3"
-    party3pet = "party3pet"
-    player = "player"
-    pet = "pet"
-    arena1 = "arena1"
-    arena2 = "arena2"
-    arena3 = "arena3"
-    player_name = UnitName(player)
     last_target = nil
     current_target = nil
 
@@ -54,43 +39,6 @@ if not shared then shared = true
 
     aCallbacks = {}
     sCallbacks = {}
-
-    ArenaMode = {
-        V3 = 1,
-        V2 = 2,
-        V1 = 3
-    }
-
-    Party = {
-        "party1",
-        "party2",
-        "party3",
-        "party1pet",
-        "party2pet",
-        "party3pet"
-    }
-
-    ArenaEnemies = {
-        "arenapet1",
-        "arenapet2",
-        "arenapet3",
-        "arena1",
-        "arena2",
-        "arena1pet",
-        "arena2pet",
-        "arena3pet",
-        "target",
-        "mouseover",
-        "focus",
-    }
-
-    WorldEnemies = {
-        "target",
-        "targettarget",
-        "focustarget",
-        "focus",
-        "mouseover"
-    }
 
     function TableConcat(t1, t2)
         for k, v in pairs(t2) do
@@ -132,26 +80,6 @@ if not shared then shared = true
     -- Returns the spell id of a given spell name
     function GetSpellId(spellname)
         return SpellIds[strlower(spellname)]
-    end
-
-    -- Return true if the player is playing in Arena
-    -- Define the mode if needed (ArenaMode.V1/V2/V3)
-    function IsArena(mode)
-        local inArena = select(1, IsActiveBattlefieldArena()) == 1
-
-        return inArena and (not mode
-                or (mode == ArenaMode.V1 and UnitExists(arena1)) == 1
-                or (mode == ArenaMode.V2 and UnitExists(arena1) and UnitExists(arena2))
-                or (mode == ArenaMode.V3 and UnitExists(arena1) and UnitExists(arena2) and UnitExists(arena3)) == 1)
-    end
-
-    -- Return an enemy array depending on the current area of the player
-    function GetEnemies()
-        if IsArena() then
-            return ArenaEnemies
-        else
-            return WorldEnemies
-        end
     end
 
     -- Return true if unit is in los with otherunit
@@ -259,21 +187,6 @@ if not shared then shared = true
         return matched
     end
 
-    -- Return true if a given unit health is under a given percent
-    function HealthIsUnder(unit, percent)
-        return (((100 * UnitHealth(unit) / UnitHealthMax(unit))) < percent)
-    end
-
-    -- Return true if the whole party has health > x
-    function HealthTeamNotUnder(percent)
-        for _, unit in ipairs(Friends) do
-            if UnitExists(unit) and HealthIsUnder(unit, percent) then
-                return false
-            end
-        end
-        return true
-    end
-
     -- Return true if a given unit isn't dmg protected
     function IsDamageProtected(unit)
         return HasAura(Auras.DIVINE_SHIELD, unit)
@@ -299,6 +212,26 @@ if not shared then shared = true
                 HasAura(RaceSpells.SHADOWMELD, unit)
     end
 
+
+    function CreateFilterWrapper(callback, filters)
+        return function(...)
+            local allowed = true
+
+            if filters then
+                for i=1, #filters do
+                    if not filters[i] then
+                        allowed = false
+                        do break end
+                    end
+                end
+            end
+
+            if allowed then
+                callback(...)
+            end
+        end
+    end
+
     -- Take a callback(object, name, position) that gonna be called iterating map objects.
     -- Return true in the callback to break the loop, false otherwise
     function IterateObjects(enabled, callback)
@@ -316,7 +249,7 @@ if not shared then shared = true
     end
 
     -- Listen spells and performs your callback(event, srcName, targetGuid, targetName, spellId, object, pos) when one is fired
-    function ListenSpellsAndThen(spellArray, enabled, callback)
+    function ListenSpellsAndThen(spellArray, filters, enabled, callback)
         if not enabled then return end
 
         for i=1, #spellArray do
@@ -326,26 +259,26 @@ if not shared then shared = true
                 CombatCallbacks[spell] = {}
             end
 
-            CombatCallbacks[spell][#CombatCallbacks[spell] + 1] = callback;
+            CombatCallbacks[spell][#CombatCallbacks[spell] + 1] = CreateFilterWrapper(callback, filters);
         end
     end
 
     -- Register a callback(object, name, position) that gonna be called while iterating world map objects
-    function RegisterAdvancedCallback(enabled, callback)
+    function RegisterAdvancedCallback(enabled, filters, callback)
         if not enabled then return end
 
-        aCallbacks[#aCallbacks + 1] = callback
+        aCallbacks[#aCallbacks + 1] = CreateFilterWrapper(callback, filters)
     end
 
     -- Register a callback() that gonna be called in an loop
-    function RegisterSimpleCallback(enabled, callback)
+    function RegisterSimpleCallback(enabled, filters, callback)
         if not enabled then return end
 
-        sCallbacks[#sCallbacks + 1] = callback
+        sCallbacks[#sCallbacks + 1] = CreateFilterWrapper(callback, filters)
     end
 
     -- Applies ur callback(auraId, object, name, position) when some of the world map units has active aura present in the aura array
-    function KeepEyeOnWorld(auraArray, enabled, to_apply)
+    function KeepEyeOnWorld(auraArray, filters, enabled, to_apply)
         if not enabled then return end
 
         local callback =
@@ -357,11 +290,11 @@ if not shared then shared = true
                 end
             end
 
-        RegisterAdvancedCallback(true, callback)
+        RegisterAdvancedCallback(true, filters, callback)
     end
 
     -- Applies ur callback(auraId, unit) when some of ur units has active aura present in the aura array
-    function KeepEyeOn(units, auraArray, enabled, to_apply)
+    function KeepEyeOn(units, auraArray, filters, enabled, to_apply)
         if not enabled then return end
 
         local callback = function()
@@ -377,11 +310,11 @@ if not shared then shared = true
             end
         end
 
-        RegisterSimpleCallback(true, callback)
+        RegisterSimpleCallback(true, filters, callback)
     end
 
     -- Register an event list and associate a script to them
-    function RegisterEvents(event, enabled, script)
+    function RegisterEvents(event, filters, enabled, script)
         if not enabled then return end
 
         for i=1, #event do
@@ -391,7 +324,7 @@ if not shared then shared = true
                 EventCallbacks[event] = {}
             end
 
-            EventCallbacks[event][#EventCallbacks[event] + 1] = script
+            EventCallbacks[event][#EventCallbacks[event] + 1] = CreateFilterWrapper(script, filters)
         end
     end
 
@@ -407,8 +340,8 @@ if not shared then shared = true
     end
 
     -- Perform an action at a given % for a given spell array
-    function PerformCallbackOnCasts(spellArray, percent, enabled, callback)
-        RegisterAdvancedCallback(enabled,
+    function PerformCallbackOnCasts(spellArray, percent, filters, enabled, callback)
+        RegisterAdvancedCallback(enabled, filters,
             function(object, name, x, y, z)
                 if  percent == nil or percent == 0 then percent = 0.01 elseif
                     percent > 100 then percent = 100 end
@@ -456,7 +389,10 @@ if not shared then shared = true
     end
 
     -- Spots instant trying to stealth
-    ListenSpellsAndThen(SharedConfiguration.StealthSpells, Configuration.STEALTH_SPOT.ENABLED,
+    ListenSpellsAndThen(SharedConfiguration.StealthSpells,
+        Configuration.STEALTH_SPOT.FILTERS,
+        Configuration.STEALTH_SPOT.ENABLED,
+
         function(_, _, _, _, _, _, object, _, _, _)
             StopCasting()
             Cast(Configuration.STEALTH_SPOT.SPELL_ID, object, enemy)
@@ -466,6 +402,7 @@ if not shared then shared = true
 
     -- While a player has one of the defined auras in the list, it gonna try to cast the breaker spell
     ListenSpellsAndThen(Configuration.INTELLIGENT_BREAKS.SPELL_LIST,
+        Configuration.INTELLIGENT_BREAKS.FILTERS,
         Configuration.INTELLIGENT_BREAKS.ENABLED and Configuration.INTELLIGENT_BREAKS.STOPCASTING,
 
         function(_, _, _, _, _, _, object, _, _, _)
@@ -474,7 +411,10 @@ if not shared then shared = true
     )
 
     -- Listen casted spells for stopcasting if needed for intelligent breaks
-    KeepEyeOnWorld(Configuration.INTELLIGENT_BREAKS.AURA_LIST, Configuration.INTELLIGENT_BREAKS.ENABLED,
+    KeepEyeOnWorld(Configuration.INTELLIGENT_BREAKS.AURA_LIST,
+        Configuration.INTELLIGENT_BREAKS.FILTERS,
+        Configuration.INTELLIGENT_BREAKS.ENABLED,
+
         function(_, object, _, _, _, _)
             if not Configuration.INTELLIGENT_BREAKS.STOPCASTING
                     and UnitCastInfo(player) ~= nil then
@@ -486,7 +426,10 @@ if not shared then shared = true
     )
 
     -- Break stealth of world targets
-    KeepEyeOnWorld(SharedConfiguration.StealthSpells, Configuration.STEALTH_SPOT.ENABLED,
+    KeepEyeOnWorld(SharedConfiguration.StealthSpells,
+        Configuration.STEALTH_SPOT.FILTERS,
+        Configuration.STEALTH_SPOT.ENABLED,
+
         function(_, object, _, _, _, _)
             if not HasAuraInArray(SharedConfiguration.StealthSpells, object) then return end
 
@@ -496,7 +439,10 @@ if not shared then shared = true
     )
 
     -- Fakecast instant overpower from warriors
-    RegisterEvents({"UNIT_AURA"}, Configuration.FAKECAST_OVERPOWER.ENABLED,
+    RegisterEvents({"UNIT_AURA"},
+        Configuration.FAKECAST_OVERPOWER.FILTERS,
+        Configuration.FAKECAST_OVERPOWER.ENABLED,
+
         function(_, _, unit, _, _, _, _, _, _, _, _, _, _, _, _)
             local end_timestamp = select(7, UnitBuff(unit, SpellNames[Auras.OVERPOWER_PROC]))
 
@@ -517,7 +463,7 @@ if not shared then shared = true
 
     -- Bypass feign death, retargeting automatically the hunter
     -- Bypass mirror images, retargeting automatically the mage
-    RegisterEvents({"PLAYER_TARGET_CHANGED"}, Configuration.FEIGNDEATH_BYPASS,
+    RegisterEvents({"PLAYER_TARGET_CHANGED"}, nil, Configuration.FEIGNDEATH_BYPASS,
         function(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _)
             local new_one = UnitName(target)
             if new_one ~= current_target then
@@ -544,7 +490,7 @@ if not shared then shared = true
     )
 
     -- Arena 2vs2 help feature
-    RegisterEvents({"PLAYER_TARGET_CHANGED"}, Configuration.ARENA_AUTO_FOCUS,
+    RegisterEvents({"PLAYER_TARGET_CHANGED"}, nil, Configuration.ARENA_AUTO_FOCUS,
         function(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _)
             if not IsArena(ArenaMode.V2) then return end
 
@@ -561,14 +507,14 @@ if not shared then shared = true
     )
 
     -- Keep in memory when a mage uses image mirrors
-    ListenSpellsAndThen({MageSpells.MIRROR_IMAGES}, Configuration.MAGE_MIRRORS_BYPASS,
+    ListenSpellsAndThen({MageSpells.MIRROR_IMAGES}, nil, Configuration.MAGE_MIRRORS_BYPASS,
         function(event, type, srcName, targetGuid, targetName, spellId, object, x, y, z)
             mage_used_mirrors = {unit = object, time = GetTime()}
         end
     )
 
     -- Register combat callbacks #ListenSpellsAndThen
-    RegisterEvents({"COMBAT_LOG_EVENT_UNFILTERED"}, true,
+    RegisterEvents({"COMBAT_LOG_EVENT_UNFILTERED"}, nil, true,
         function(_, event, _, type, _, srcName, _, targetGuid, targetName, _, spellId, object, x, y, z)
             local callbacks = CombatCallbacks[spellId]
 
@@ -581,7 +527,7 @@ if not shared then shared = true
     )
 
     -- Register when the player /reload or logout to remove timers
-    RegisterEvents({"PLAYER_LOGIN", "PLAYER_LOGOUT"}, true,
+    RegisterEvents({"PLAYER_LOGIN", "PLAYER_LOGOUT"}, nil, true,
         function(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _)
             stopTimers({objectTimer, analizeTimer, simpleTimer})
         end
