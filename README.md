@@ -108,7 +108,9 @@ See more specific functions directly in the file `shared.lua`
 * `Auto Fakecast Overpower`: Fakecast instant overpowers from other warrior scripters
 * `Feign Death Bypass`: Auto re-target the hunter
 * `Mirror Images Bypass`: Auto re-target the mage
+* `Stealth Spot`: Analyses the world map objects and spot all stealth players with the defined spellId (class depending)
 * `Arena Auto Focus`: Auto focus arena1/arena2 depending of your target (works on 2s only)
+* `Auto Intelligent Break`: stopcasting and cast a defined spell on reflect/grounding totem
 
 #### Priest Scripts
 
@@ -134,9 +136,7 @@ See [Priest Configuration](https://github.com/Romain-P/Ewt-Scripts/blob/master/p
     -- Make this macro and press it to dot the unit, target in this example
     /script Dot(target)
 ```
-* `Stealth Spot`: Analyses the world map objects and spot all stealth players with the defined spellId (class depending)
 * `Auto Instant Controls Break`: Swd all instant controls from any player on the map e.g gouge
 * `Auto Friendly Dispel`: Dispels your party members when they got specific auras
 * `Auto Mass Dispel`: Automatically cast `Mass Dispel` on players with the defined aura list. This feature has to be reviewed to calculate a new position when the paladin isnt in direct `LoS` or `15 yards away` (15 yards of radius)
 * `Auto Casting Controls Break`: Swd all casting controls from any player on the map e.g sheep
-* `Auto Intelligent Break`: stopcasting and cast a defined spell on reflect/grounding totem
