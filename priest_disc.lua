@@ -19,7 +19,7 @@ if not defined then
             MAGE_MIRRORS_BYPASS = true,
 
             -- Fakecast rogue shadow step + kick / Warrior swap stance + pummel
-            -- TODO: shield equiped, check health or find the offset
+            -- TODO: shield equiped, check health or find th e offset
             FAKECAST_INTERRUPTS = true,
 
             -- Enable fakecast for overpower

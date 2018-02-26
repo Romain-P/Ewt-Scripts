@@ -89,6 +89,10 @@ See more specific functions directly in the file `shared.lua`
 
     -- Register a callback() that gonna be called in an loop
     function RegisterSimpleCallback(enabled, filters, callback);
+    
+    -- Wrap a function with some filters
+    -- Returns a new function that will call or not the callback depending if all the filters returned true
+    function CreateFilterWrapper(callback, filters);
 ````
 
 * Listen events and apply custom scripts `callback(self, event, arg1, type, srcGuid, srcName, arg2, targetGuid, targetName, arg3, spellId, object, x, y, z)` when they are fired
