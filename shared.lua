@@ -436,6 +436,16 @@ if not shared then shared = true
         )
     end
 
+    -- Performs a stopcasting (moving fast for channeling casts)
+    function StopCasting()
+        if UnitChannelInfo(player) ~= nil then
+            MoveForwardStart()
+            MoveForwardStop()
+        elseif UnitCastingInfo(player) ~= nil then
+            SpellStopCasting()
+        end
+    end
+
     function stopTimers(timers)
         for i=1, #timers do
             local timer = timers[i]
@@ -447,10 +457,31 @@ if not shared then shared = true
 
     -- Spots instant trying to stealth
     ListenSpellsAndThen(SharedConfiguration.StealthSpells, Configuration.STEALTH_SPOT.ENABLED,
-        function(_, _, _, _, _, object, _, _, _)
-            SpellStopCasting()
+        function(_, _, _, _, _, _, object, _, _, _)
+            StopCasting()
             Cast(Configuration.STEALTH_SPOT.SPELL_ID, object, enemy)
             TargetUnit(found)
+        end
+    )
+
+    -- While a player has one of the defined auras in the list, it gonna try to cast the breaker spell
+    ListenSpellsAndThen(Configuration.INTELLIGENT_BREAKS.SPELL_LIST,
+        Configuration.INTELLIGENT_BREAKS.ENABLED and Configuration.INTELLIGENT_BREAKS.STOPCASTING,
+
+        function(_, _, _, _, _, _, object, _, _, _)
+            StopCasting()
+        end
+    )
+
+    -- Listen casted spells for stopcasting if needed for intelligent breaks
+    KeepEyeOnWorld(Configuration.INTELLIGENT_BREAKS.AURA_LIST, Configuration.INTELLIGENT_BREAKS.ENABLED,
+        function(_, object, _, _, _, _)
+            if not Configuration.INTELLIGENT_BREAKS.STOPCASTING
+                    and UnitCastInfo(player) ~= nil then
+                return
+            end
+
+            Cast(Configuration.INTELLIGENT_BREAKS.SPELL_BREAKER, object, enemy)
         end
     )
 
@@ -477,13 +508,7 @@ if not shared then shared = true
                         print("Performed a fake cast for overpower from ".. UnitName(unit))
                     end
 
-                    if UnitChannelInfo(player) ~= nil then
-                        MoveForwardStart()
-                        MoveForwardStop()
-                    elseif UnitCastingInfo(player) ~= nil then
-                        SpellStopCasting()
-                    end
-
+                    StopCasting()
                     overpowered = GetTime()
                 end
             end

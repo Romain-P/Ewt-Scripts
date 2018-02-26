@@ -22,6 +22,22 @@ if not defined then
             DEBUG = true
         },
 
+        -- Automatically breaks grounding totem, reflect
+        INTELLIGENT_BREAKS = {
+            ENABLED = true,
+            STOPCASTING = true,
+            SPELL_BREAKER = PriestSpells.MIND_SMOOTHE,
+            SPELL_LIST = {
+                WarriorSpells.REFLECT,
+                ShamanSpells.GROUNDING_TOTEM
+            },
+            AURA_LIST = {
+                Auras.GROUNDING_TOTEM,
+                Auras.REFLECT,
+                Auras.PROT_REFLECT
+            }
+        },
+
         -- A spell that gonna be casted on stealthed targets
         STEALTH_SPOT = {
             ENABLED = true,

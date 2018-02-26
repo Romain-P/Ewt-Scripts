@@ -14,7 +14,9 @@ if not shared_spells then
         FEIGN_DEATH = 5384
     }
 
-    WarriorSpells = {}
+    WarriorSpells = {
+        REFLECT = 23920
+    }
 
     MageSpells = {
         Polymorph_sheep = 12826,
@@ -27,7 +29,9 @@ if not shared_spells then
 
     WarlockSpells = {}
 
-    ShamanSpells = {}
+    ShamanSpells = {
+        GROUNDING_TOTEM = 8177
+    }
 
     PaladinSpells = {
         REPENTENCE = 20066
@@ -62,7 +66,8 @@ if not shared_spells then
         MASS_DISPEL = 32375,
         HOLY_FIRE = 48135,
         SMITE = 48123,
-        MIND_BLAST = 48127
+        MIND_BLAST = 48127,
+        MIND_SMOOTHE = 453
     }
 
     Auras = {
@@ -122,6 +127,8 @@ if not shared_spells then
         BEAST = 34471,
         LICHBORN = 49039,
         MAGIC_SHIELD = 48707,
-        PRIEST_SHIELD = 48066
+        PRIEST_SHIELD = 48066,
+        REFLECT = 23920,
+        PROT_REFLECT = 59725
     }
 end
