@@ -33,6 +33,9 @@ if not shared then shared = true
     party3pet = "party3pet"
     player = "player"
     pet = "pet"
+    arena1 = "arena1"
+    arena2 = "arena2"
+    arena3 = "arena3"
     player_name = UnitName(player)
     last_target = nil
     current_target = nil
@@ -51,6 +54,12 @@ if not shared then shared = true
 
     aCallbacks = {}
     sCallbacks = {}
+
+    ArenaMode = {
+        V3 = 1,
+        V2 = 2,
+        V1 = 3
+    }
 
     Party = {
         "party1",
@@ -126,8 +135,14 @@ if not shared then shared = true
     end
 
     -- Return true if the player is playing in Arena
-    function IsArena()
-        return select(1, IsActiveBattlefieldArena()) == 1
+    -- Define the mode if needed (ArenaMode.V1/V2/V3)
+    function IsArena(mode)
+        local inArena = select(1, IsActiveBattlefieldArena()) == 1
+
+        return inArena and (not mode
+                or (mode == ArenaMode.V1 and UnitExists(arena1)) == 1
+                or (mode == ArenaMode.V2 and UnitExists(arena1) and UnitExists(arena2))
+                or (mode == ArenaMode.V3 and UnitExists(arena1) and UnitExists(arena2) and UnitExists(arena3)) == 1)
     end
 
     -- Return an enemy array depending on the current area of the player
@@ -499,6 +514,23 @@ if not shared then shared = true
                 else
                     TargetUnit(WorldObjects[last_target])
                 end
+            end
+        end
+    )
+
+    -- Arena 2vs2 help feature
+    RegisterEvents({"PLAYER_TARGET_CHANGED"}, Configuration.ARENA_AUTO_FOCUS,
+        function(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _)
+            if not IsArena(ArenaMode.V2) then return end
+
+            local arena1_name = UnitName(arena1)
+            local arena2_name = UnitName(arena2)
+            local target_name = UnitName(target)
+
+            if arena1_name == target_name then
+                FocusUnit(arena2)
+            elseif arena2_name == target_name then
+                FocusUnit(arena1)
             end
         end
     )

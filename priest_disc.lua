@@ -8,10 +8,13 @@ if not defined then
     Configuration = {
         SCRIPT_NAME = "Priest Discipline",
 
+        -- 2vs2 feature: When target=arena1, automatically focus=arena2 and vice-versa
+        ARENA_AUTO_FOCUS = true,
+
         -- Bypass feign death, auto re-targeting
         FEIGNDEATH_BYPASS = true,
         -- Bypass image mirrors, auto re-targeting
-        MAGE_MIRRORS_BYPASS = false,
+        MAGE_MIRRORS_BYPASS = true,
 
         -- Enable fakecast for overpower
         FAKECAST_OVERPOWER = {
