@@ -285,6 +285,8 @@ if not defined then
             function(object, _, _, _, _)
                 if not IsCastingOnMe(object) or not UnitCastingInfo(object) then return end
 
+                StopCasting()
+
                 if not Cast(PriestSpells.SWD, object, enemy) then
                     -- if the mage isnt in range, lf a closer target
                     local found
