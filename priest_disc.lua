@@ -18,8 +18,7 @@ if not defined then
             -- Bypass image mirrors, auto re-targeting
             MAGE_MIRRORS_BYPASS = true,
 
-            -- Fakecast rogue shadow step + kick / Warrior swap stance + pummel
-            -- TODO: shield equiped, check health or find th e offset
+            -- Fakecast rogue shadow step + kick / Warrior swap stance + pummel / shield equiped
             FAKECAST_INTERRUPTS = true,
 
             -- Check if a caster is really casting on you
@@ -35,6 +34,7 @@ if not defined then
                 DEBUG = true
             },
 
+            -- Configure your totem tracker, then use TrackTotems()
             TOTEM_TRACKER = {
                 USE_MELEE = true,
                 USE_RANGE = RaceSpells.SHOOT,

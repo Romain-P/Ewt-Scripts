@@ -17,7 +17,9 @@ if not shared_spells then
 
     WarriorSpells = {
         REFLECT = 23920,
-        BERZERK_STANCE = 2458
+        BERZERK_STANCE = 2458,
+        SHIELD_BASH = 72,
+        PUMMEL = 6552
     }
 
     MageSpells = {
@@ -77,6 +79,12 @@ if not shared_spells then
     }
 
     Auras = {
+        BLESSING_OF_KING = 20217,
+        GREATER_BLESSING_OF_KING = 25898,
+        FORTITUDE = 48161,
+        GREATER_FORTITUDE = 48162,
+        MARK_WILD = 48469,
+        GREATER_MARK_WILD = 48470,
         DOT_PAIN = 48125,
         DOT_PLAGUE = 48300,
         FEIGN_DEATH = 5384,

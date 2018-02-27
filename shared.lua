@@ -576,14 +576,86 @@ if not shared then shared = true
         end
     )
 
+    Warriors = {}
+
+    -- Return true if the given unit got an buff that increases max health
+    function HealthBuffed(unit)
+        return HasAura(Auras.BLESSING_OF_KING ,unit) or
+                HasAura(Auras.GREATER_BLESSING_OF_KING, unit) or
+                HasAura(Auras.FORTITUDE, unit) or
+                HasAura(Auras.GREATER_FORTITUDE, unit) or -- AJ punsh line popo
+                HasAura(Auras.MARK_WILD, unit) or
+                HasAura(Auras.GREATER_MARK_WILD, unit)
+    end
+
+    -- That may not work sometimes in world pvp map
+    -- It gonna works only with defined units (target, focus, arena1 etc)
+    -- I dont iterate objects to save some perfs
+    RegisterEvents({"UNIT_MAXHEALTH"}, nil, Configuration.Shared.FAKECAST_INTERRUPTS,
+        function(_, _, unit, _, _, _, _, _, _, _, _, _, _, _, _)
+            if not MeleeRange(unit) then return end
+
+            local object = WorldObjects[UnitName(unit)]
+            local hold = Warriors[object]
+            local firstime = false
+
+            if hold == nil then
+                Warriors[object] = {BUFFED=HealthBuffed(unit), LAST_HEALTH=UnitHealthMax(unit)}
+                hold = Warriors[object]
+                firstime = true
+            end
+
+            local recentlyBuffed = not hold.BUFFED and HealthBuffed(unit)
+            local recentlyDispeled = hold.BUFFED and not HealthBuffed(unit)
+            local unitHealth = UnitHealthMax(unit)
+            local lastHealth = hold.LAST_HEALTH
+
+            hold.LAST_HEALTH = unitHealth
+
+            if recentlyBuffed or recentlyDispeled then
+                hold.BUFFED = recentlyBuffed
+                do return end
+            end
+
+            -- if equipped 2 weapons or interrupts not on cd, we dont stopcasting
+            if (unitHealth <= lastHealth and not firstime) or (hold.ITIME ~= nil and hold.ITIME + hold.IDURATION > GetTime()) then do return end end
+
+            StopCasting()
+            overpowered = GetTime()
+        end
+    )
+
+    -- Set cooldowns of warrior interrupt spells
+    ListenSpellsAndThen({WarriorSpells.SHIELD_BASH, WarriorSpells.PUMMEL},
+        nil,
+        Configuration.Shared.FAKECAST_INTERRUPTS,
+
+        function(event, type, srcName, targetGuid, targetName, spellId, object, x, y, z)
+            if type ~= "SPELL_CAST_SUCCESS" and type ~= "SPELL_CAST_FAILED" and type ~= "SPELL_CAST_MISS" then return end
+
+            Warriors[object] = {BUFFED=HealthBuffed(object), LAST_HEALTH=UnitHealthMax(object), ITIME=GetTime(), IDURATION=nil}
+            local hold = Warriors[object]
+
+            if spellId == WarriorSpells.BASH then
+                hold.IDURATION = 11.7
+            else
+                hold.IDURATION =  9.7
+            end
+        end
+    )
+
     -- Fakecast shadowstep + kick / berzek + pummel
     ListenSpellsAndThen({WarriorSpells.BERZERK_STANCE, RogueSpells.SHADOWSTEP},
         nil,
         Configuration.Shared.FAKECAST_INTERRUPTS,
 
         function(event, type, srcName, targetGuid, targetName, spellId, object, x, y, z)
-            if targetName == player_name or
-                    (spellId == WarriorSpells.BERZEK_STANCE and MeleeRange(object)) then
+            local hold = Warriors[object]
+
+            if targetName == player_name or hold == nil or hold.ITIME == nil or
+                    (spellId == WarriorSpells.BERZERK_STANCE and MeleeRange(object)
+                    and hold.ITIME + hold.IDURATION < GetTime()) then
+                overpowered = GetTime()
                 StopCasting()
             end
         end

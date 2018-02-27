@@ -31,7 +31,8 @@ See more specific functions directly in the Wiki
 * `Stealth Spot`: Analyses the world map objects and spot all stealth players with the defined spellId (class depending)
 * `Arena Auto Focus`: Auto focus arena1/arena2 depending of your target (works on 2s only)
 * `Auto Intelligent Break`: stopcasting and cast a defined spell on reflect/grounding totem
-* `Fakecast pummel/kick`: fakecast kick when shadowstep is used, same for pummel when berzek stance used
+* `Fakecast pummel/kick/bash`: fakecast kick when shadowstep is used, same for pummel when berzek stance used, and now when trying to bash equipping a shield
+* `Fakecast Cooldowns`: it won't fakecast pummel/bash until the spells are available for the warrior
 * `Auto Friendly Dispel`: Dispels your party members when they got specific auras
 * `Auto Enemy Dispel`: Dispels the given lists when found on the world map enemies
 * `Caster's Real Target`: can detect if someone is casting on you (if you are the focus for example)
