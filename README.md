@@ -48,7 +48,7 @@ See more specific functions directly in the Wiki
     -- See configuration for more details (sound + alert can be enabled/disabled)
 ```
 
-* `Advanced Totem Tracker`: Tracks and kills totem, see `TOTEM_TRACKER` for more customization
+* `Advanced Totem Tracker`: Tracks and kills totem, see `TOTEM_TRACKER` configuration for more customization
 ```lua
     -- Make this macro and press it to kill a totem
     /script TrackTotems()
