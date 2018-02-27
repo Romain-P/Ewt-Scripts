@@ -35,6 +35,26 @@ if not defined then
                 DEBUG = true
             },
 
+            TOTEM_TRACKER = {
+                USE_MELEE = true,
+                USE_RANGE = RaceSpells.SHOOT,
+                USE_PET = false,
+                USE_RANGE_AND_PET_BOTH = false,
+                USE_SPELLS = false,
+
+                -- put your totem in order to break
+                TRACKED = {
+                    "Tremor Totem",
+                    "Earthbind Totem",
+                    "Cleansing Totem"
+                },
+
+                -- When you tracked list is broken, put true to kill other totems
+                -- e.g Flamstrong Totem etc
+                TRACK_OTHERS = true,
+                TOTEM_OCCURENCE = "Totem"
+            },
+
             -- Automatically breaks grounding totem, reflect
             INTELLIGENT_BREAKS = {
                 ENABLED = true,
@@ -184,39 +204,6 @@ if not defined then
                 end
             end
     )
-
-    -- Tracks and kills totems with wound/weapon in order: tremor, cleansing, earthind and others
-    function TrackTotems()
-        local priority_name, priority
-
-        IterateObjects(true,
-            function(object, objectName, _)
-                if UnitIsEnemy(object, player) and UnitCanAttack(player, object) == 1 then
-                    local tremor_totem = objectName == SharedConfiguration.Totems.TREMOR
-
-                    if tremor_totem or
-                            objectName == SharedConfiguration.Totems.EARTHBIND or
-                            (objectName == SharedConfiguration.Totems.CLEANSING and priority_name ~= SharedConfiguration.Totems.EARTHBIND) or
-                            string.find(objectName, SharedConfiguration.Totems.TOTEM_OCCURENCE) ~= nil and priority == nil then
-                        priority = object
-                        priority_name = objectName
-
-                        return tremor_totem
-                    end
-                end
-
-                return false
-            end
-        )
-
-        if not priority then return end
-
-        if MeleeRange(priority) then
-            RunMacroText("/startattack [@"..priority.."]")
-        else
-            Cast(RaceSpells.SHOOT, priority, enemy)
-        end
-    end
 
     -- Dps rotation for a given enemy unit
     function Dps(unit)

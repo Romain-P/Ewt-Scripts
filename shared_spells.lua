@@ -6,7 +6,8 @@ if not shared_spells then
 
     RaceSpells = {
         SHADOWMELD = 58984,
-        SHOOT = 5019
+        SHOOT = 5019,
+        THROW = 2764
     }
 
     HunterSpells = {
@@ -36,7 +37,9 @@ if not shared_spells then
     }
 
     PaladinSpells = {
-        REPENTENCE = 20066
+        REPENTENCE = 20066,
+        HAND_OF_RECKONING = 62124,
+        JUDGEMENT_OF_WISDOM = 53408
     }
 
     DkSpells = {

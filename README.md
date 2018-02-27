@@ -47,15 +47,17 @@ See more specific functions directly in the Wiki
     
     -- See configuration for more details (sound + alert can be enabled/disabled)
 ```
-#### Priest Scripts
 
-See [Priest Configuration](https://github.com/Romain-P/Ewt-Scripts/blob/master/priest_disc.lua#L8) for more details and customisation
-
-* `Totem tracker`: checks for destroy totems with Shoot/Weapon (depending the range) in order: `Tremor, Cleansing, Earthbind and then others`
+* `Advanced Totem Tracker`: Tracks and kills totem, see `TOTEM_TRACKER` for more customization
 ```lua
     -- Make this macro and press it to kill a totem
     /script TrackTotems()
 ```
+
+#### Priest Scripts
+
+See [Priest Configuration](https://github.com/Romain-P/Ewt-Scripts/blob/master/priest_disc.lua#L8) for more details and customisation
+
 * `Healing Rotation`: performs an healing rotation on the unit you want e.g `player`, `party1`, `party1pet`
 ```lua
     -- Make this macro and press it to heal the unit, yourself in this example

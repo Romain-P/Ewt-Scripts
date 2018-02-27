@@ -7,13 +7,6 @@ if not shared then shared = true
         gcd_value = 1.5,
         latency = 0.15, -- latency in seconds
 
-        Totems = {
-            TREMOR = "Tremor Totem",
-            EARTHBIND = "Earthbind Totem",
-            CLEANSING = "Cleansing Totem",
-            TOTEM_OCCURENCE = "Totem"
-        },
-
         StealthSpells = {
             RogueSpells.VANISH,
             RogueSpells.STEALTH,
@@ -52,6 +45,25 @@ if not shared then shared = true
             end
         end
         return t1
+    end
+
+    function TableContains(table, elem)
+        for i=1, #table do
+            if table[i] == elem then
+                return true
+            end
+        end
+        return false
+    end
+
+    function IndexOf(table, elem)
+        for i=1, #table do
+            if table[i] == elem then
+                return i
+            end
+        end
+
+        return nil
     end
 
     Spells = {}
@@ -483,11 +495,74 @@ if not shared then shared = true
         end
     end
 
+    -- Real target related function
     RegisterSimpleCallback(Configuration.Shared.REAL_TARGET_CHECK.ENABLED, nil,
         function()
             RetrieveOldTarget()
         end
     )
+
+    -- Rotation for break tracked totems
+    function TotemBreakRotation(totem)
+        local use_melee = Configuration.Shared.TOTEM_TRACKER.USE_MELEE
+        local rangeSpell = Configuration.Shared.TOTEM_TRACKER.USE_RANGE
+        local use_pet = Configuration.Shared.TOTEM_TRACKER.USE_PET
+        local use_rangepet = Configuration.Shared.TOTEM_TRACKER.USE_RANGE_AND_PET_BOTH
+        local spellList = Configuration.Shared.TOTEM_TRACKER.USE_SPELLS
+
+        local in_los = InLos(player, totem)
+        local can_range = rangeSpell ~= nil and rangeSpell ~= false and GetDistanceBetweenObjects(player, totem) <= 30 and in_los
+
+        if use_melee and GetDistanceBetweenObjects(player, totem) <= 4 and in_los then
+            RunMacroText("/startattack [@"..totem.."]")
+            do return end
+        elseif can_range then
+            Cast(rangeSpell, totem, enemy)
+        end
+
+        if (can_range and use_rangepet) or (not use_rangepet and not can_range) then
+            RunMacroText("/petattack [@"..totem.."]")
+        end
+
+        if spellList == nil or spellList == false then return end
+
+        for i=1, #spellList do
+            Cast(spellList[i], totem, enemy)
+        end
+    end
+
+    tracked = Configuration.Shared.TOTEM_TRACKER.TRACKED
+    track_others = Configuration.Shared.TOTEM_TRACKER.TRACK_OTHERS
+
+    -- Tracks and kills totems with wound/weapon in order: tremor, cleansing, earthind and others
+    function TrackTotems()
+        local priority_index, priority
+
+        IterateObjects(true,
+            function(object, name, _, _, _)
+                if GetDistanceBetweenObjects(player, object) > 36 or not UnitIsEnemy(object, player) or UnitCanAttack(player, object) ~= 1 then return false end
+
+                if TableContains(tracked, name) then
+                    local index = IndexOf(tracked, name)
+
+                    if priority_index == nil or index < priority_index then
+                        priority_index = index
+                        priority = object
+
+                        return index == 1
+                    end
+                elseif track_others and string.find(name, Configuration.Shared.TOTEM_TRACKER.TOTEM_OCCURENCE) ~= nil then
+                    priority = object
+                end
+
+                return false
+            end
+        )
+
+        if not priority then return end
+
+        TotemBreakRotation(priority)
+    end
 
     -- Spots instant trying to stealth
     ListenSpellsAndThen(SharedConfiguration.StealthSpells,
