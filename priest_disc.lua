@@ -31,7 +31,7 @@ if not defined then
             -- Enable fakecast for overpower
             FAKECAST_OVERPOWER = {
                 ENABLED = true,
-                DEBUG = true
+                DEBUG = false
             },
 
             -- Configure your totem tracker, then use TrackTotems()
@@ -171,7 +171,7 @@ if not defined then
         -- Spell list to swd when casted on yu
         SWD_CASTING_CONTROL = {
             ENABLED = true,
-            PERCENT = 85, -- swd at 90% of the castbar
+            PERCENT = 80, -- swd at 90% of the castbar
             SPELL_LIST = {
                 Auras.Seduction_1,
                 Auras.Seduction_2,
@@ -195,6 +195,53 @@ if not defined then
 
     -- Hold spells that will be catched to get the real target of a caster
     addDangerousSpells(Configuration.SWD_CASTING_CONTROL.SPELL_LIST)
+
+    -- Healing rotation for a given friendly unit
+    function Heal(unit)
+        if ShouldntCast() then
+            Cast(PriestSpells.PRAYER_OF_MENDING, unit, ally)
+            Cast(PriestSpells.RENEW, unit, ally)
+            return
+        end
+
+        if unit == pet then
+            if UnitExists(party1pet) then
+                unit = party1pet
+            elseif UnitExists(party2pet) then
+                unit = party2pet
+            end
+        end
+
+        if CdRemains(PriestSpells.SHIELD, false)
+                and not HasAura(PriestSpells.SHIELD, unit)
+                and not HasAura(Auras.WEAKENED_SOUL, unit) then
+            Cast(PriestSpells.SHIELD, unit, ally)
+
+        elseif CdRemains(PriestSpells.PRAYER_OF_MENDING, false)
+                and not HasAura(Auras.PRAYER_OF_MENDING, unit)
+                and HealthIsUnder(unit, 80) then
+            Cast(PriestSpells.PRAYER_OF_MENDING, unit, ally)
+
+        elseif CdRemains(PriestSpells.PENANCE, false) then
+            Cast(PriestSpells.PENANCE, unit, ally)
+
+        elseif HealthIsUnder(unit, 70)
+                and not HasAura(PriestSpells.RENEW, unit)
+                and HasAura(PriestSpells.SHIELD, unit)
+                and HasAura(Auras.GRACE, unit) then
+            Cast(PriestSpells.RENEW, unit, ally)
+
+        else
+            local id = PriestSpells.FLASH_HEAL
+
+            if HealthIsUnder(player, 80)
+                    and unit ~= player then
+                id = PriestSpells.BINDING_HEAL
+            end
+
+            Cast(id, unit, ally)
+        end
+    end
 
     -- SWD Scatter, Hungering cold, blind, gouge, repentence
     ListenSpellsAndThen(Configuration.SWD_INSTANT_CONTROL.SPELL_LIST,
@@ -222,6 +269,7 @@ if not defined then
                     CancelPendingSpell()
                 end
 
+                StopCasting()
                 CastSpellByID(PriestSpells.MASS_DISPEL)
                 ClickPosition(x, y, z)
             end
@@ -270,50 +318,6 @@ if not defined then
             Cast(PriestSpells.SHADOWORD_PAIN, unit, enemy)
         elseif not HasDot(Auras.DOT_PLAGUE, unit) then
             Cast(PriestSpells.DEVOURING_PLAGUE, unit, enemy)
-        end
-    end
-
-    -- Healing rotation for a given friendly unit
-    -- TODO: CALL HEAL AGAIN WHEN FAKECASTED, BUT CALL ONLY INSTANT SPELLS
-    function Heal(unit)
-        if ShouldntCast() then return end
-
-        if unit == pet then
-            if UnitExists(party1pet) then
-                unit = party1pet
-            elseif UnitExists(party2pet) then
-                unit = party2pet
-            end
-        end
-
-        if CdRemains(PriestSpells.SHIELD, false)
-                and not HasAura(PriestSpells.SHIELD, unit)
-                and not HasAura(Auras.WEAKENED_SOUL, unit) then
-            Cast(PriestSpells.SHIELD, unit, ally)
-
-        elseif CdRemains(PriestSpells.PRAYER_OF_MENDING, false)
-                and not HasAura(Auras.PRAYER_OF_MENDING, unit)
-                and HealthIsUnder(unit, 80) then
-            Cast(PriestSpells.PRAYER_OF_MENDING, unit, ally)
-
-        elseif CdRemains(PriestSpells.PENANCE, false) then
-            Cast(PriestSpells.PENANCE, unit, ally)
-
-        elseif HealthIsUnder(unit, 70)
-                and not HasAura(PriestSpells.RENEW, unit)
-                and HasAura(PriestSpells.SHIELD, unit)
-                and HasAura(Auras.GRACE, unit) then
-            Cast(PriestSpells.RENEW, unit, ally)
-
-        else
-            local id = PriestSpells.FLASH_HEAL
-
-            if HealthIsUnder(player, 80)
-                    and unit ~= player then
-                id = PriestSpells.BINDING_HEAL
-            end
-
-            Cast(id, unit, ally)
         end
     end
 end

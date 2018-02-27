@@ -892,6 +892,7 @@ if not shared then shared = true
 
     function OnDisable()
         sharedFrame:UnregisterAllEvents()
+        Warriors = {}
         stopTimers({objectTimer, analizeTimer, simpleTimer})
         print("[Shared-API] succesfully disabled")
         print("["..Configuration.Shared.SCRIPT_NAME.."] is stopped")
