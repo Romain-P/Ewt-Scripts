@@ -254,22 +254,30 @@ if not defined then
         end
     )
 
+    -- Stopcasting when divine shield pops or
+    ListenSpellsAndThen(Configuration.MASS_DISPEL.AURA_LIST,
+        Configuration.MASS_DISPEL.FILTERS,
+        Configuration.MASS_DISPEL.ENABLED,
+
+        function(_, _, _, _, _, _, object, _, _, _)
+            if GetDistanceBetweenObjects(player, object) > 30 or not ValidUnit(object, enemy) then return end
+            StopCasting()
+        end
+    )
+
     -- Keep an eye on world objects: md divine shield
     KeepEyeOnWorld(Configuration.MASS_DISPEL.AURA_LIST,
         Configuration.MASS_DISPEL.FILTERS,
         Configuration.MASS_DISPEL.ENABLED,
 
         function(_, object, _, x, y, z)
-            local MD_RANGE = 30 -- naive md script, TODO: calcul position when not in los or 5 yards away
-
-            if GetDistanceBetweenObjects(player, object) <= MD_RANGE and
+            if GetDistanceBetweenObjects(player, object) <= 30 and
                ValidUnit(object, enemy) and CdRemains(PriestSpells.MASS_DISPEL) then
 
                 if IsAoEPending() then
                     CancelPendingSpell()
                 end
 
-                StopCasting()
                 CastSpellByID(PriestSpells.MASS_DISPEL)
                 ClickPosition(x, y, z)
             end
@@ -305,6 +313,22 @@ if not defined then
                 end
             end
     )
+
+    -- Friendly dispel with dispel magic / abolish disease
+    function Dispel(unit)
+        if HasAura(Auras.UNSTABLE_AFFLICTION, unit) or (not HasAura(Auras.INFECTED_WOUNDS, unit) and not HasAura(Auras.ICE_CHAINS, unit)) then
+            for _, b in ipairs(Configuration.Shared.AUTO_FRIENDLY_DISPEL.AURA_LIST) do
+                if HasAura(b, unit)
+                        and not HasAura(Auras.UNHOLY_BLIGHT, unit)
+                        and not HasAura(Auras.ABOLISH_DISEASE, unit) then
+                    Cast(PriestSpells.ABOLISH_DISEASE, unit, ally)
+                end
+            end
+            Cast(PriestSpells.DISPEL_MAGIC, unit, ally)
+        else
+            Cast(PriestSpells.DISPEL_MAGIC, unit, ally)
+        end
+    end
 
     -- Dps rotation for a given enemy unit
     function Dps(unit)

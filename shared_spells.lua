@@ -81,10 +81,16 @@ if not shared_spells then
         MIND_BLAST = 48127,
         MIND_SMOOTHE = 453,
         INNER_FIRE = 48168,
-        FORTITUDE = 48161
+        FORTITUDE = 48161,
+        ABOLISH_DISEASE = 552,
     }
 
     Auras = {
+        INFECTED_WOUNDS = 58181,
+        UNSTABLE_AFFLICTION = 47843,
+        ICE_CHAINS = 45524,
+        UNHOLY_BLIGHT = 50536,
+        ABOLISH_DISEASE = 552,
         SILENCE = 15487,
         SHADOWFURY = 47847,
         Seduction_1 = 31865,

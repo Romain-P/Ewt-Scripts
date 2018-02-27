@@ -220,6 +220,7 @@ if not shared then shared = true
 
     -- Return true if in melee range with a given unit
     function MeleeRange(unit)
+        if not UnitExists(unit) then return end
         return GetDistanceBetweenObjects(player, unit) < SharedConfiguration.melee_range
     end
 
@@ -593,7 +594,7 @@ if not shared then shared = true
     -- I dont iterate objects to save some perfs
     RegisterEvents({"UNIT_MAXHEALTH"}, nil, Configuration.Shared.FAKECAST_INTERRUPTS,
         function(_, _, unit, _, _, _, _, _, _, _, _, _, _, _, _)
-            if not MeleeRange(unit) then return end
+            if not MeleeRange(unit) or not ValidUnit(unit, enemy) then return end
 
             local object = WorldObjects[UnitName(unit)]
             local hold = Warriors[object]
@@ -654,7 +655,7 @@ if not shared then shared = true
 
             if targetName == player_name or hold == nil or hold.ITIME == nil or
                     (spellId == WarriorSpells.BERZERK_STANCE and MeleeRange(object)
-                    and hold.ITIME + hold.IDURATION < GetTime()) then
+                    and hold.ITIME + hold.IDURATION < GetTime() and ValidUnit(object, enemy)) then
                 overpowered = GetTime()
                 StopCasting()
             end
@@ -688,6 +689,8 @@ if not shared then shared = true
         Configuration.Shared.INTELLIGENT_BREAKS.ENABLED and Configuration.Shared.INTELLIGENT_BREAKS.STOPCASTING,
 
         function(_, _, _, _, _, _, object, _, _, _)
+            if not ValidUnit(object, enemy) then return end
+
             StopCasting()
         end
     )
@@ -746,6 +749,8 @@ if not shared then shared = true
         Configuration.Shared.FAKECAST_OVERPOWER.ENABLED,
 
         function(_, _, unit, _, _, _, _, _, _, _, _, _, _, _, _)
+            if not ValidUnit(unit, enemy) then return end
+
             local end_timestamp = select(7, UnitBuff(unit, SpellNames[Auras.OVERPOWER_PROC]))
 
             if end_timestamp ~= nil then
