@@ -56,7 +56,32 @@ if not defined then
             STEALTH_SPOT = {
                 ENABLED = true,
                 SPELL_ID = PriestSpells.SWD
-            }
+            },
+
+            -- Dispel list on party
+            AUTO_FRIENDLY_DISPEL = {
+                ENABLED = true,
+                FILTERS = {filter_party_health},
+                SPELL_ID = PriestSpells.DISPEL_MAGIC,
+                AURA_LIST = {
+                    Auras.HOJ,
+                    Auras.REPENTANCE,
+                    Auras.SEDUCTION,
+                    Auras.SEDUCTION2,
+                    Auras.COUNTERSPELL,
+
+                }
+            },
+
+            -- Dispel list on world map enemies
+            AUTO_ENEMY_DISPEL = {
+                ENABLED = true,
+                FILTERS = {filter_party_health},
+                SPELL_ID = PriestSpells.DISPEL_MAGIC,
+                AURA_LIST = {
+
+                }
+            },
         },
 
         -- Auras on enemy to mass dispel
@@ -66,29 +91,6 @@ if not defined then
             AURA_LIST = {
                 Auras.DIVINE_SHIELD,
                 Auras.ICEBLOCK
-            }
-        },
-
-        -- Dispel list on party
-        AUTO_DISPEL = {
-            ENABLED = true,
-            FILTERS = {filter_party_health},
-            AURA_LIST = {
-                Auras.HOJ,
-                Auras.REPENTANCE,
-                Auras.SEDUCTION,
-                Auras.SEDUCTION2,
-                Auras.COUNTERSPELL,
-
-            }
-        },
-
-        -- Dispel list on world map enemies
-        AUTO_ENEMY_DISPEL = {
-            ENABLED = true,
-            FILTERS = {filter_party_health},
-            AURA_LIST = {
-
             }
         },
 
@@ -131,26 +133,6 @@ if not defined then
         function(_, _, _, _, targetName, _, object, _, _, _)
             if targetName ~= player_name then return end
             Cast(PriestSpells.SWD, object, enemy)
-        end
-    )
-
-    -- Keep an eye on party units: dispels the dispel list
-    KeepEyeOn(Party, Configuration.AUTO_DISPEL.AURA_LIST,
-        Configuration.AUTO_DISPEL.FILTERS,
-        Configuration.AUTO_DISPEL.ENABLED,
-
-        function(_, unit)
-            Cast(PriestSpells.DISPEL_MAGIC, unit, ally)
-        end
-    )
-
-    -- Keep an eye on world map enemy units: dispels the dispel list
-    KeepEyeOnWorld(Configuration.AUTO_ENEMY_DISPEL.AURA_LIST,
-        Configuration.AUTO_ENEMY_DISPEL.FILTERS,
-        Configuration.AUTO_ENEMY_DISPEL.ENABLED,
-
-        function(_, object, _, _, _, _)
-            Cast(PriestSpells.DISPEL_MAGIC, object, enemy)
         end
     )
 

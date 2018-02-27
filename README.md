@@ -33,6 +33,9 @@ See more specific functions directly in the Wiki
 * `Auto Intelligent Break`: stopcasting and cast a defined spell on reflect/grounding totem
 * `Fakecast pummel/kick`: fakecast kick when shadowstep is used, same for pummel when berzek stance used
 * `Caster's Real Target`: can detect if someone is casting on you (if you are the focus for example)
+* `Auto Friendly Dispel`: Dispels your party members when they got specific auras
+* `Auto Enemy Dispel`: Dispels the given lists when found on the world map enemies
+
 ```lua
     -- First setup the list of spells you want to enable the feature
     -- You can add any spell you want, you can call AddDangerousSpells as much as you want
@@ -69,7 +72,5 @@ See [Priest Configuration](https://github.com/Romain-P/Ewt-Scripts/blob/master/p
     /script Dot(target)
 ```
 * `Auto Instant Controls Break`: Swd all instant controls from any player on the map e.g gouge
-* `Auto Friendly Dispel`: Dispels your party members when they got specific auras
-* `Auto Enemy Dispel`: Dispels the given lists when found on the world map enemies
 * `Auto Mass Dispel`: Automatically cast `Mass Dispel` on players with the defined aura list. This feature has to be reviewed to calculate a new position when the paladin isnt in direct `LoS` or `15 yards away` (15 yards of radius)
 * `Auto Casting Controls Break`: Swd all casting controls from any player on the map e.g sheep

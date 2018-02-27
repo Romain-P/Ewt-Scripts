@@ -524,6 +524,26 @@ if not shared then shared = true
         end
     )
 
+    -- Keep an eye on party units: dispels the dispel list
+    KeepEyeOn(Party, Configuration.Shared.AUTO_FRIENDLY_DISPEL.AURA_LIST,
+        Configuration.Shared.AUTO_FRIENDLY_DISPEL.FILTERS,
+        Configuration.Shared.AUTO_FRIENDLY_DISPEL.ENABLED,
+
+        function(_, unit)
+            Cast(Configuration.Shared.AUTO_FRIENDLY_DISPEL.SPELL_ID, unit, ally)
+        end
+    )
+
+    -- Keep an eye on world map enemy units: dispels the dispel list
+    KeepEyeOnWorld(Configuration.Shared.AUTO_ENEMY_DISPEL.AURA_LIST,
+        Configuration.Shared.AUTO_ENEMY_DISPEL.FILTERS,
+        Configuration.Shared.AUTO_ENEMY_DISPEL.ENABLED,
+
+        function(_, object, _, _, _, _)
+            Cast(Configuration.Shared.AUTO_ENEMY_DISPEL.SPELL_ID, object, enemy)
+        end
+    )
+
     -- Listen casted spells for stopcasting if needed for intelligent breaks
     KeepEyeOnWorld(Configuration.Shared.INTELLIGENT_BREAKS.AURA_LIST,
         Configuration.Shared.INTELLIGENT_BREAKS.FILTERS,
