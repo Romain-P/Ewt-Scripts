@@ -32,9 +32,9 @@ See more specific functions directly in the Wiki
 * `Arena Auto Focus`: Auto focus arena1/arena2 depending of your target (works on 2s only)
 * `Auto Intelligent Break`: stopcasting and cast a defined spell on reflect/grounding totem
 * `Fakecast pummel/kick`: fakecast kick when shadowstep is used, same for pummel when berzek stance used
-* `Caster's Real Target`: can detect if someone is casting on you (if you are the focus for example)
 * `Auto Friendly Dispel`: Dispels your party members when they got specific auras
 * `Auto Enemy Dispel`: Dispels the given lists when found on the world map enemies
+* `Caster's Real Target`: can detect if someone is casting on you (if you are the focus for example)
 
 ```lua
     -- First setup the list of spells you want to enable the feature
