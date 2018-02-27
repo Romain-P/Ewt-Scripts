@@ -75,10 +75,13 @@ if not shared_spells then
         HOLY_FIRE = 48135,
         SMITE = 48123,
         MIND_BLAST = 48127,
-        MIND_SMOOTHE = 453
+        MIND_SMOOTHE = 453,
+        INNER_FIRE = 48168,
+        FORTITUDE = 48161
     }
 
     Auras = {
+        INNER_FIRE = 48168,
         BLESSING_OF_KING = 20217,
         GREATER_BLESSING_OF_KING = 25898,
         FORTITUDE = 48161,

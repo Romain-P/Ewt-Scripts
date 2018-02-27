@@ -661,6 +661,22 @@ if not shared then shared = true
         end
     )
 
+    -- Auto rebuff feature
+    RegisterSimpleCallback(
+        Configuration.Shared.AUTO_REBUFF.ENABLED,
+        Configuration.Shared.AUTO_REBUFF.FILTERS,
+
+        function()
+            for i=1, #Configuration.Shared.AUTO_REBUFF.BUFFS do
+                local buff = Configuration.Shared.AUTO_REBUFF.BUFFS[i]
+
+                if not HasAura(buff.AURA, player) then
+                    Cast(buff.SPELL, player, ally)
+                end
+            end
+        end
+    )
+
     -- While a player has one of the defined auras in the list, it gonna try to cast the breaker spell
     ListenSpellsAndThen(Configuration.Shared.INTELLIGENT_BREAKS.SPELL_LIST,
         Configuration.Shared.INTELLIGENT_BREAKS.FILTERS,

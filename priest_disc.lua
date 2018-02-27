@@ -18,7 +18,7 @@ if not defined then
             -- Bypass image mirrors, auto re-targeting
             MAGE_MIRRORS_BYPASS = true,
 
-            -- Fakecast rogue shadow step + kick / Warrior swap stance + pummel / shield equiped
+            -- Fakecast rogue shadow step + kick / Warrior swap stance + pummel / shield equiped (bash)
             FAKECAST_INTERRUPTS = true,
 
             -- Check if a caster is really casting on you
@@ -53,6 +53,16 @@ if not defined then
                 -- e.g Flamstrong Totem etc
                 TRACK_OTHERS = true,
                 TOTEM_OCCURENCE = "Totem"
+            },
+
+            AUTO_REBUFF = {
+                ENABLED = true,
+                FILTERS = {filter_party_health},
+                -- Define your buffs, sometimes auraId != spellId, be careful
+                BUFFS = {
+                    {SPELL = PriestSpells.INNER_FIRE, AURA = Auras.INNER_FIRE},
+                    {SPELL = PriestSpells.FORTITUDE, AURA = Auras.FORTITUDE}
+                }
             },
 
             -- Automatically breaks grounding totem, reflect
