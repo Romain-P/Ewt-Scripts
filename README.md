@@ -35,7 +35,7 @@ See more specific functions directly in the Wiki
 * `Fakecast Cooldowns`: it won't fakecast pummel/bash until the spells are available for the warrior
 * `Auto Friendly Dispel`: Dispels your party members when they got specific auras
 * `Auto Enemy Dispel`: Dispels the given lists when found on the world map enemies
-* `Auto Rebuff`: auto rebuff a given buff list, see configuration for customize
+* `Auto Rebuff`: auto rebuff a given buff list on defined units, see configuration for customize
 * `Caster's Real Target`: can detect if someone is casting on you (if you are the focus for example)
 
 ```lua

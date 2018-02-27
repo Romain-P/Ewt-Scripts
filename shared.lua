@@ -669,9 +669,14 @@ if not shared then shared = true
         function()
             for i=1, #Configuration.Shared.AUTO_REBUFF.BUFFS do
                 local buff = Configuration.Shared.AUTO_REBUFF.BUFFS[i]
+                local units = Configuration.Shared.AUTO_REBUFF.UNITS
 
-                if not HasAura(buff.AURA, player) then
-                    Cast(buff.SPELL, player, ally)
+                for j=1, #units do
+                    local unit = units[j]
+
+                    if not HasAura(buff.AURA, unit) then
+                        Cast(buff.SPELL, unit, ally)
+                    end
                 end
             end
         end

@@ -58,10 +58,11 @@ if not defined then
             AUTO_REBUFF = {
                 ENABLED = true,
                 FILTERS = {filter_party_health},
+                -- Define which units to rebuff
+                UNITS = {player},
                 -- Define your buffs, sometimes auraId != spellId, be careful
                 BUFFS = {
-                    {SPELL = PriestSpells.INNER_FIRE, AURA = Auras.INNER_FIRE},
-                    {SPELL = PriestSpells.FORTITUDE, AURA = Auras.FORTITUDE}
+                    {SPELL = PriestSpells.INNER_FIRE, AURA = Auras.INNER_FIRE}
                 }
             },
 
