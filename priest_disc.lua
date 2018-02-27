@@ -100,18 +100,49 @@ if not defined then
                     Auras.SEDUCTION,
                     Auras.SEDUCTION2,
                     Auras.COUNTERSPELL,
-
+                    Auras.PSYCHIC_SCREAM,
+                    Auras.FEAR,
+                    Auras.COILE,
+                    Auras.SILENCE,
+                    Auras.SHADOWFURY,
+                    Auras.Seduction_1,
+                    Auras.Seduction_2,
+                    Auras.Seduction_3,
+                    Auras.Seduction_4,
+                    Auras.Seduction_5,
+                    Auras.ENTANGLING_ROOT,
+                    Auras.STRANGULATE,
+                    Auras.FREEZING_TRAP,
+                    Auras.FREEZING_ARROW,
+                    Auras.SILENCING_SHOT,
+                    Auras.TURN_EVIL,
+                    Auras.HUNGERING_COLD,
+                    Auras.HUNTER_MARK,
+                    Auras.TRAP_SNAKE,
+                    Auras.CRAB_SNARE,
+                    Auras.ROOT_TOTEM,
+                    Auras.CS_LOCKPET,
+                    Auras.FEAR_AOE_LOCK,
+                    Auras.ROOT_DRUID,
+                    Auras.ROOT_DRUID2,
+                    Auras.FEARIE_FIRE,
+                    Auras.Polymorph_sheep,
+                    Auras.Polymorph_rabbit,
+                    Auras.Polymorph_turtle,
+                    Auras.Polymorph_pig,
+                    Auras.Polymorph_cat,
+                    Auras.Polymorph_subrank1,
+                    Auras.Polymorph_subrank2,
+                    Auras.Polymorph_turkey
                 }
             },
 
             -- Dispel list on world map enemies
             AUTO_ENEMY_DISPEL = {
-                ENABLED = true,
+                ENABLED = false,
                 FILTERS = {filter_party_health},
                 SPELL_ID = PriestSpells.DISPEL_MAGIC,
-                AURA_LIST = {
-
-                }
+                AURA_LIST = {}
             },
         },
 
@@ -140,13 +171,22 @@ if not defined then
         -- Spell list to swd when casted on yu
         SWD_CASTING_CONTROL = {
             ENABLED = true,
-            PERCENT = 90, -- swd at 90% of the castbar
+            PERCENT = 85, -- swd at 90% of the castbar
             SPELL_LIST = {
-                MageSpells.Polymorph_sheep,
-                MageSpells.Polymorph_cat,
-                MageSpells.Polymorph_pig,
-                MageSpells.Polymorph_rabbit,
-                MageSpells.Polymorph_turtle
+                Auras.Seduction_1,
+                Auras.Seduction_2,
+                Auras.Seduction_3,
+                Auras.Seduction_4,
+                Auras.Seduction_5,                    Auras.Polymorph_sheep,
+                Auras.Polymorph_rabbit,
+                Auras.Polymorph_turtle,
+                Auras.Polymorph_pig,
+                Auras.Polymorph_cat,
+                Auras.Polymorph_subrank1,
+                Auras.Polymorph_subrank2,
+                Auras.Polymorph_turkey,
+                Auras.SEDUCTION,
+                Auras.SEDUCTION2
             }
         }
     }
@@ -195,7 +235,7 @@ if not defined then
         Configuration.SWD_CASTING_CONTROL.FILTERS,
         Configuration.SWD_CASTING_CONTROL.ENABLED,
             function(object, _, _, _, _)
-                if not IsCastingOnMe(object) then return end
+                if not IsCastingOnMe(object) or not UnitCastingInfo(object) then return end
 
                 if not Cast(PriestSpells.SWD, object, enemy) then
                     -- if the mage isnt in range, lf a closer target

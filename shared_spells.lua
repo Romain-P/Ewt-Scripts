@@ -29,6 +29,10 @@ if not shared_spells then
         Polymorph_turtle = 28271,
         Polymorph_pig = 28272,
         Polymorph_cat = 61305,
+        Polymorph_subrank1 = 12824,
+        Polymorph_subrank2 = 12825,
+        Polymorph_turkey = 61780,
+
         MIRROR_IMAGES = 55342
     }
 
@@ -81,6 +85,37 @@ if not shared_spells then
     }
 
     Auras = {
+        SILENCE = 15487,
+        SHADOWFURY = 47847,
+        Seduction_1 = 31865,
+        Seduction_2 = 30850,
+        Seduction_3 = 29490,
+        Seduction_4 = 20407,
+        Seduction_5 = 6359,
+        ENTANGLING_ROOT = 53308,
+        STRANGULATE = 47476,
+        FREEZING_TRAP = 14309,
+        FREEZING_ARROW = 60210,
+        SILENCING_SHOT = 34490,
+        TURN_EVIL = 10326,
+        HUNGERING_COLD = 49203,
+        HUNTER_MARK = 53338,
+        TRAP_SNAKE = 64803,
+        CRAB_SNARE = 53547,
+        ROOT_TOTEM = 64695,
+        CS_LOCKPET = 24259,
+        FEAR_AOE_LOCK = 17928,
+        ROOT_DRUID = 53308,
+        ROOT_DRUID2 = 53313,
+        FEARIE_FIRE = 770,
+        Polymorph_sheep = 12826,
+        Polymorph_rabbit = 61721,
+        Polymorph_turtle = 28271,
+        Polymorph_pig = 28272,
+        Polymorph_cat = 61305,
+        Polymorph_subrank1 = 12824,
+        Polymorph_subrank2 = 12825,
+        Polymorph_turkey = 61780,
         INNER_FIRE = 48168,
         BLESSING_OF_KING = 20217,
         GREATER_BLESSING_OF_KING = 25898,
