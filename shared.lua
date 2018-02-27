@@ -23,6 +23,7 @@ if not shared then shared = true
     }
 
     last_target = nil
+    last_target_notnull = nil
     current_target = nil
 
     overpowered = nil
@@ -40,9 +41,15 @@ if not shared then shared = true
     aCallbacks = {}
     sCallbacks = {}
 
-    function TableConcat(t1, t2)
+    dangerousSpells = {}
+
+    function TableConcat(t1, t2, valueAsKey)
         for k, v in pairs(t2) do
-            t1[k] = v
+            if not valueAsKey then
+                t1[k] = v
+            else
+                t1[v] = true
+            end
         end
         return t1
     end
@@ -202,6 +209,10 @@ if not shared then shared = true
     -- Return true if in melee range with a given unit
     function MeleeRange(unit)
         return GetDistanceBetweenObjects(player, unit) < SharedConfiguration.melee_range
+    end
+
+    function printWarning(text)
+        RaidNotice_AddMessage(RaidWarningFrame, text, ChatTypeInfo["RAID_WARNING"])
     end
 
     -- Return true if a target is stealthed
@@ -369,6 +380,13 @@ if not shared then shared = true
         )
     end
 
+    -- Add dangerous spells that may be catched to know the real target of the caster
+    function addDangerousSpells(spellList)
+        for i=1, #spellList do
+            dangerousSpells[#dangerousSpells + 1] = spellList[i]
+        end
+    end
+
     -- Performs a stopcasting (moving fast for channeling casts)
     function StopCasting()
         if UnitChannelInfo(player) ~= nil then
@@ -387,6 +405,89 @@ if not shared then shared = true
             end
         end
     end
+
+    dangerousCasters = {}
+    casterTargetTimer = 0
+    oldTarget = nil
+
+    -- Return true if the given unit is casting on you
+    function IsCastingOnMe(unit)
+        local infos
+        local real = Configuration.Shared.REAL_TARGET_CHECK.ENABLED
+
+        if real then
+            local cpy = {}
+            TableConcat(cpy, dangerousCasters)
+
+            for k,_ in pairs(cpy) do
+                if UnitCastInfo(k) == nil then
+                    dangerousCasters[k] = nil
+                end
+            end
+
+            infos = dangerousCasters[unit]
+        end
+
+        return (real and infos ~= nil and infos.isCastingOnMe) or
+                (not real and UnitTarget(target) == WorldObjects[player_name])
+    end
+
+    -- Real target related function
+    function SetupRealTargetFeature()
+        ListenSpellsAndThen(dangerousSpells, nil, Configuration.Shared.REAL_TARGET_CHECK.ENABLED,
+            function(event, type, srcName, targetGuid, targetName, spellId, object, x, y, z)
+                if type ~= "SPELL_CAST_START" then return end
+
+                oldTarget = WorldObjects[current_target]
+                ClearTarget()
+                dangerousCasters[object] = {isCastingOnMe = false}
+                casterTargetTimer = GetTime()
+            end
+        )
+    end
+
+    -- Real target related function
+    function RetrieveOldTarget()
+        if casterTargetTimer ~= nil then
+            if oldTarget ~= nil then
+                TargetUnit(oldTarget)
+            end
+            casterTargetTimer = nil
+            oldTarget = nil
+        end
+    end
+
+    -- Real target related function
+    function RealTargetCheck()
+        if not Configuration.Shared.REAL_TARGET_CHECK.ENABLED
+                or current_target == nil
+                or casterTargetTimer == nil then return end
+
+        local potential = WorldObjects[current_target]
+        local isCasting = UnitCastInfo(potential) ~= nil
+        local dangerous = dangerousCasters[potential] ~= nil and isCasting
+        local timein = GetTime() - casterTargetTimer < 0.01
+
+        if dangerous and timein then
+            dangerousCasters[potential].isCastingOnMe = true
+            RetrieveOldTarget()
+
+            if Configuration.Shared.REAL_TARGET_CHECK.SOUND then
+                PlaySound("RaidWarning", "master")
+            end
+            if Configuration.Shared.REAL_TARGET_CHECK.TEXT then
+                printWarning("BE CAREFUL, CAST ON YOU")
+            end
+        elseif (not timein or not isCasting) and dangerousCasters[potential] ~= nil then
+            dangerousCasters[potential] = nil
+        end
+    end
+
+    RegisterSimpleCallback(Configuration.Shared.REAL_TARGET_CHECK.ENABLED, nil,
+        function()
+            RetrieveOldTarget()
+        end
+    )
 
     -- Spots instant trying to stealth
     ListenSpellsAndThen(SharedConfiguration.StealthSpells,
@@ -481,9 +582,15 @@ if not shared then shared = true
             local new_one = UnitName(target)
             if new_one ~= current_target then
                 last_target = current_target
+
+                if current_target ~= nil then
+                    last_target_notnull = current_target
+                end
             end
 
             current_target = new_one
+
+            RealTargetCheck()
 
             local retarget_mage = mage_used_mirrors ~= nil
                     and UnitName(mage_used_mirrors.unit) == last_target
@@ -611,6 +718,8 @@ if not shared then shared = true
         for k,_ in pairs(EventCallbacks) do
            sharedFrame:RegisterEvent(k)
         end
+
+        SetupRealTargetFeature()
 
         if objectTimer ~= nil and analizeTimer ~= nil and simpleTimer ~= nil then
             print("[Shared-API] successfully enabled")

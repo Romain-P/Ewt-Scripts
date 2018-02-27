@@ -22,6 +22,12 @@ if not defined then
             -- TODO: shield equiped, check health or find th e offset
             FAKECAST_INTERRUPTS = true,
 
+            REAL_TARGET_CHECK = {
+                ENABLED = true,
+                SOUND = true,
+                TEXT = true
+            },
+
             -- Enable fakecast for overpower
             FAKECAST_OVERPOWER = {
                 ENABLED = true,
@@ -113,6 +119,9 @@ if not defined then
 
     RunScript(ReadFile("script/shared.lua"))
 
+    -- Hold spells that will be catched to get the real target of a caster
+    addDangerousSpells(Configuration.SWD_CASTING_CONTROL.SPELL_LIST)
+
     -- SWD Scatter, Hungering cold, blind, gouge, repentence
     ListenSpellsAndThen(Configuration.SWD_INSTANT_CONTROL.SPELL_LIST,
         Configuration.SWD_INSTANT_CONTROL.FILTERS,
@@ -172,6 +181,8 @@ if not defined then
         Configuration.SWD_CASTING_CONTROL.FILTERS,
         Configuration.SWD_CASTING_CONTROL.ENABLED,
             function(object, _, _, _, _)
+                if not IsCastingOnMe(object) then return end
+
                 if not Cast(PriestSpells.SWD, object, enemy) then
                     -- if the mage isnt in range, lf a closer target
                     local found

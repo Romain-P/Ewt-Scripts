@@ -20,6 +20,7 @@ if not shared_spells then
     }
 
     MageSpells = {
+        FIRE_BALL = 42833,
         Polymorph_sheep = 12826,
         Polymorph_rabbit = 61721,
         Polymorph_turtle = 28271,
