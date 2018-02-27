@@ -22,10 +22,11 @@ if not defined then
             -- TODO: shield equiped, check health or find th e offset
             FAKECAST_INTERRUPTS = true,
 
+            -- Check if a caster is really casting on you
             REAL_TARGET_CHECK = {
                 ENABLED = true,
-                SOUND = true,
-                TEXT = true
+                SOUND = true, -- sound alert
+                TEXT = true -- screen alert
             },
 
             -- Enable fakecast for overpower
