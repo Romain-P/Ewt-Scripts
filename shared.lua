@@ -571,6 +571,8 @@ if not shared then shared = true
         Configuration.Shared.STEALTH_SPOT.ENABLED,
 
         function(_, _, _, _, _, _, object, _, _, _)
+            if not ValidUnit(objet, enemy) then return end
+
             StopCasting()
             Cast(Configuration.Shared.STEALTH_SPOT.SPELL_ID, object, enemy)
             TargetUnit(found)
@@ -689,7 +691,7 @@ if not shared then shared = true
         Configuration.Shared.INTELLIGENT_BREAKS.ENABLED and Configuration.Shared.INTELLIGENT_BREAKS.STOPCASTING,
 
         function(_, _, _, _, _, _, object, _, _, _)
-            if not ValidUnit(object, enemy) then return end
+            if not ValidUnit(object, enemy) or not InLos(player, object) then return end
 
             StopCasting()
         end
@@ -721,6 +723,8 @@ if not shared then shared = true
         Configuration.Shared.INTELLIGENT_BREAKS.ENABLED,
 
         function(_, object, _, _, _, _)
+            if not ValidUnit(object, enemy) then return end
+
             if not Configuration.Shared.INTELLIGENT_BREAKS.STOPCASTING
                     and UnitCastInfo(player) ~= nil then
                 return
@@ -736,6 +740,8 @@ if not shared then shared = true
         Configuration.Shared.STEALTH_SPOT.ENABLED,
 
         function(_, object, _, _, _, _)
+            if not ValidUnit(object, enemy) then return end
+
             if not HasAuraInArray(SharedConfiguration.StealthSpells, object) then return end
 
             Cast(Configuration.Shared.STEALTH_SPOT.SPELL_ID, object, enemy)

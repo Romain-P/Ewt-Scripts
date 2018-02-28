@@ -260,7 +260,7 @@ if not defined then
         Configuration.MASS_DISPEL.ENABLED,
 
         function(_, _, _, _, _, _, object, _, _, _)
-            if GetDistanceBetweenObjects(player, object) > 30 or not ValidUnit(object, enemy) then return end
+            if GetDistanceBetweenObjects(player, object) > 30 or not InLos(player, object) or not ValidUnit(object, enemy) then return end
             StopCasting()
         end
     )
@@ -291,6 +291,7 @@ if not defined then
         Configuration.SWD_CASTING_CONTROL.FILTERS,
         Configuration.SWD_CASTING_CONTROL.ENABLED,
             function(object, _, _, _, _)
+                if not ValidUnit(object, enemy) or GetDistanceBetweenObjects(player, object) > 36 then return end
                 if not IsCastingOnMe(object) or not UnitCastingInfo(object) then return end
 
                 StopCasting()
@@ -299,7 +300,7 @@ if not defined then
                     -- if the mage isnt in range, lf a closer target
                     local found
 
-                    local search = function(potential, pName, px, py, pz)
+                    local search = function(potential, _, _, _, _)
                         if Cast(PriestSpells.SWD, potential, enemy) then
                             found = potential
                             return true
