@@ -65,7 +65,7 @@ if not shared_digest then
         else return MODM end
     end
     local function bnot(x) return (-1 - x) % MOD end
-    spells_enabled = true  aura_set = "653eb6534013e4d0197ef5679777a12ab4ed8f12de207c3b1436b7045896f89b"--"653eb6534013e4d0197ef5679777a12ab4ed8f12de207c3b1436b7045896f89b"--nil
+    spells_enabled = true  aura_set = nil
     local function rshift1(a, disp)
         if disp < 0 then return lshift(a,-disp) end
         return math.floor(a % 2 ^ 32 / 2 ^ disp)
