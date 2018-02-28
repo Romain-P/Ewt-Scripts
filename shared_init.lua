@@ -6,3 +6,4 @@
 RunScript(ReadFile("script/shared_spells.lua"))
 RunScript(ReadFile("script/shared_units.lua"))
 RunScript(ReadFile("script/shared_filters.lua"))
+RunScript(ReadFile("script/shared_digest.lua"))
