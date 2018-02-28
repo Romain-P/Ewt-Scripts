@@ -271,7 +271,7 @@ if not defined then
         Configuration.MASS_DISPEL.ENABLED,
 
         function(_, object, _, x, y, z)
-            if GetDistanceBetweenObjects(player, object) <= 30 and
+            if GetDistanceBetweenObjects(player, object) <= 30 and InLos(player, object) and
                ValidUnit(object, enemy) and CdRemains(PriestSpells.MASS_DISPEL) then
 
                 if IsAoEPending() then
