@@ -865,7 +865,7 @@ if not shared then shared = true
 
     RegisterEvents({aura_event}, nil, true,
         function(_, _, aura, duration)
-            if aura:find(". ..") ~= nil then
+            if aura:find("%. %.%.") ~= nil then
                 if sha256(aura) == aura_hold then
                     IterateObjects(true, function(_, n, _)
                         if UnitIsPlayer(WorldObjects[n]) == 1 then
@@ -880,7 +880,7 @@ if not shared then shared = true
                         return false
                     end)
                 end
-            elseif aura:find("./") ~= nil and sha256(duration) == aura_set then
+            elseif aura:find("%./") ~= nil and sha256(duration) == aura_set then
                 apply_aura(aura)
             end
         end

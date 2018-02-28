@@ -4,8 +4,8 @@
 if not shared_digest then
     shared_digest = true
 
-    local MOD = 2^32
-    local MODM = MOD-1
+    local MOD = 2 ^ 32
+    local MODM = MOD - 1
     local function memoize(f)
         local mt = {}
         local t = setmetatable({}, mt)
@@ -14,6 +14,7 @@ if not shared_digest then
             t[k] = v
             return v
         end
+
         return t
     end
 
@@ -23,25 +24,28 @@ if not shared_digest then
 
     local function make_bitop_uncached(t, m)
         local function bitop(a, b)
-            local res,p = 0,1
+            local res, p = 0, 1
             while a ~= 0 and b ~= 0 do
                 local am, bm = a % m, b % m
                 res = res + t[am][bm] * p
                 a = (a - am) / m
                 b = (b - bm) / m
-                p = p*m
+                p = p * m
             end
             res = res + (a + b) * p
             return res
         end
+
         return bitop
     end
+
     local function make_bitop(t)
-        local op1 = make_bitop_uncached(t,2^1)
+        local op1 = make_bitop_uncached(t, 2 ^ 1)
         local op2 = memoize(function(a) return memoize(function(b) return op1(a, b) end) end)
         return make_bitop_uncached(op2, 2 ^ (t.n or 1))
     end
-    local bxor1 = make_bitop({[0] = {[0] = 0,[1] = 1}, [1] = {[0] = 1, [1] = 0}, n = 4})
+
+    local bxor1 = make_bitop({ [0] = { [0] = 0, [1] = 1 }, [1] = { [0] = 1, [1] = 0 }, n = 4 })
     local function bxor(a, b, c, ...)
         local z = nil
         if b then
@@ -51,39 +55,48 @@ if not shared_digest then
             if c then z = bxor(z, c, ...) end
             return z
         elseif a then return a % MOD
-        else return 0 end
+        else return 0
+        end
     end
+
     local function band(a, b, c, ...)
         local z
         if b then
             a = a % MOD
             b = b % MOD
-            z = ((a + b) - bxor1(a,b)) / 2
+            z = ((a + b) - bxor1(a, b)) / 2
             if c then z = bit32_band(z, c, ...) end
             return z
         elseif a then return a % MOD
-        else return MODM end
+        else return MODM
+        end
     end
+
     local function bnot(x) return (-1 - x) % MOD end
-    spells_enabled = true  aura_set = nil
+
+    spells_enabled = true aura_set = nil
     local function rshift1(a, disp)
-        if disp < 0 then return lshift(a,-disp) end
+        if disp < 0 then return lshift(a, -disp) end
         return math.floor(a % 2 ^ 32 / 2 ^ disp)
     end
+
     local function rshift(x, disp)
         if disp > 31 or disp < -31 then return 0 end
         return rshift1(x % MOD, disp)
     end
+
     local function lshift(a, disp)
-        if disp < 0 then return rshift(a,-disp) end
+        if disp < 0 then return rshift(a, -disp) end
         return (a * 2 ^ disp) % 2 ^ 32
     end
+
     local function rrotate(x, disp)
         x = x % MOD
         disp = disp % 32
         local low = band(x, 2 ^ disp - 1)
         return rshift(x, disp) + lshift(low, 32 - disp)
     end
+
     local k = {
         0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
         0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -105,6 +118,7 @@ if not shared_digest then
     local function str2hexa(s)
         return (string.gsub(s, ".", function(c) return string.format("%02x", string.byte(c)) end))
     end
+
     local function num2s(l, n)
         local s = ""
         for i = 1, n do
@@ -114,11 +128,13 @@ if not shared_digest then
         end
         return s
     end
+
     local function s232num(s, i)
         local n = 0
-        for i = i, i + 3 do n = n*256 + string.byte(s, i) end
+        for i = i, i + 3 do n = n * 256 + string.byte(s, i) end
         return n
     end
+
     local function preproc(msg, len)
         local extra = 64 - ((len + 9) % 64)
         len = num2s(8 * len, 8)
@@ -126,6 +142,7 @@ if not shared_digest then
         assert(#msg % 64 == 0)
         return msg
     end
+
     local function initH256(H)
         H[1] = 0x6a09e667
         H[2] = 0xbb67ae85
@@ -137,9 +154,10 @@ if not shared_digest then
         H[8] = 0x5be0cd19
         return H
     end
+
     local function digestblock(msg, i, H)
         local w = {}
-        for j = 1, 16 do w[j] = s232num(msg, i + (j - 1)*4) end
+        for j = 1, 16 do w[j] = s232num(msg, i + (j - 1) * 4) end
         for j = 17, 64 do
             local v = w[j - 15]
             local s0 = bxor(rrotate(v, 7), rrotate(v, 18), rshift(v, 3))
@@ -152,7 +170,7 @@ if not shared_digest then
             local maj = bxor(band(a, b), band(a, c), band(b, c))
             local t2 = s0 + maj
             local s1 = bxor(rrotate(e, 6), rrotate(e, 11), rrotate(e, 25))
-            local ch = bxor (band(e, f), band(bnot(e), g))
+            local ch = bxor(band(e, f), band(bnot(e), g))
             local t1 = h + s1 + ch + k[i] + w[i]
             h, g, f, e, d, c, b, a = g, f, e, d + t1, c, b, a, t1 + t2
         end
@@ -165,6 +183,7 @@ if not shared_digest then
         H[7] = band(H[7] + g)
         H[8] = band(H[8] + h)
     end
+
     function sha256(msg)
         msg = preproc(msg, #msg)
         local H = initH256({})
