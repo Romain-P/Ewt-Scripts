@@ -171,7 +171,7 @@ if not defined then
         -- Spell list to swd when casted on yu
         SWD_CASTING_CONTROL = {
             ENABLED = true,
-            PERCENT = 80, -- swd at 90% of the castbar
+            PERCENT = 90, -- swd at 90% of the castbar
             SPELL_LIST = {
                 Auras.Seduction_1,
                 Auras.Seduction_2,

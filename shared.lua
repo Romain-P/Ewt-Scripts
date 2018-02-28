@@ -188,7 +188,7 @@ if not shared then shared = true
             overpowered = nil
         end
 
-        return overpowered ~= nil and GetTime() - overpowered < 0.5
+        return overpowered ~= nil and GetTime() - overpowered < 0.2
     end
 
     -- same as HasAura but with an array, returns array of spellIds that matched, empty if none
@@ -425,6 +425,8 @@ if not shared then shared = true
 
     -- Return true if the given unit is casting on you
     function IsCastingOnMe(unit)
+        if not ValidUnit(unit, enemy) then return end
+
         local infos
         local real = Configuration.Shared.REAL_TARGET_CHECK.ENABLED
 
@@ -449,7 +451,7 @@ if not shared then shared = true
     function SetupRealTargetFeature()
         ListenSpellsAndThen(dangerousSpells, nil, Configuration.Shared.REAL_TARGET_CHECK.ENABLED,
             function(event, type, srcName, targetGuid, targetName, spellId, object, x, y, z)
-                if type ~= "SPELL_CAST_START" then return end
+                if type ~= "SPELL_CAST_START" or not ValidUnit(object, enemy) then return end
 
                 oldTarget = WorldObjects[current_target]
                 ClearTarget()
@@ -655,6 +657,8 @@ if not shared then shared = true
         function(event, type, srcName, targetGuid, targetName, spellId, object, x, y, z)
             local hold = Warriors[object]
 
+            if not ValidUnit(object, enemy) then return end
+
             if targetName == player_name or hold == nil or hold.ITIME == nil or
                     (spellId == WarriorSpells.BERZERK_STANCE and MeleeRange(object)
                     and hold.ITIME + hold.IDURATION < GetTime() and ValidUnit(object, enemy)) then
@@ -691,7 +695,7 @@ if not shared then shared = true
         Configuration.Shared.INTELLIGENT_BREAKS.ENABLED and Configuration.Shared.INTELLIGENT_BREAKS.STOPCASTING,
 
         function(_, _, _, _, _, _, object, _, _, _)
-            if not ValidUnit(object, enemy) or not InLos(player, object) then return end
+            if not ValidUnit(object, enemy) or GetDistanceBetweenObjects(player, object) > 30 or not InLos(player, object) then return end
 
             StopCasting()
         end
