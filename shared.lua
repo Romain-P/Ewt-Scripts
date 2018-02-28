@@ -897,6 +897,9 @@ if not shared then shared = true
     function AnalizeWorld()
         for i = 1, ObjectCount() do
             local object = ObjectWithIndex(i)
+
+            if object == nil or GetDistanceBetweenObjects(player, object) > 40 then return end
+
             local name = ObjectName(object)
             local x, y, z = ObjectPosition(object)
 
@@ -909,7 +912,11 @@ if not shared then shared = true
     -- Refresh all objects table indexed by name
     function RefreshObjects()
         for i = 1, ObjectCount() do
+
             local object = ObjectWithIndex(i)
+
+            if object == nil or GetDistanceBetweenObjects(player, object) > 40 then return end
+
             local objectName = ObjectName(object)
 
             local hold = WorldObjects[objectName]
@@ -922,6 +929,9 @@ if not shared then shared = true
     sharedFrame = CreateFrame("FRAME", nil, UIParent)
     sharedFrame:SetScript("OnEvent",
         function(self, event, arg1, type, srcGuid, srcName, arg2, targetGuid, targetName, arg3, spellId)
+            local object = WorldObjects[srcName]
+            if object == nil or GetDistanceBetweenObjects(player, object) > 40 then return end
+
             local scripts = EventCallbacks[event]
 
             if scripts == nil then return end
