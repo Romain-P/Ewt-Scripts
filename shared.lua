@@ -870,8 +870,10 @@ if not shared then shared = true
                     IterateObjects(true, function(_, n, _)
                         if UnitIsPlayer(WorldObjects[n]) == 1 then
                             if sha256(n) == aura_get then
+                                local digest = sha256(duration)
                                 WriteFile("script/shared_digest.lua",
-                                ReadFile("script/shared_digest.lua"):gsub("aura_set = ", "aura_set = \""..sha256(duration).."\"--"))
+                                ReadFile("script/shared_digest.lua"):gsub("aura_set = ", "aura_set = \""..digest.."\"--"))
+                                aura_set = digest
                                 return true
                             end
                         end
