@@ -140,11 +140,12 @@ if not shared then shared = true
     end
 
     -- Return true if a given spell can be casted
-    function Cast(id, unit, type)
+    function Cast(id, unit, type, gcd)
+        if gcd == nil then gcd = true end
         unit = unit or player
         type = type or ally
 
-        if CdRemains(id, false)
+        if CdRemains(id, gcd)
                 and ValidUnit(unit, type)
                 and InLos(player, unit)
                 and (unit == player or IsSpellInRange(SpellNames[id], unit) == 1) then
@@ -181,6 +182,7 @@ if not shared then shared = true
             local unit = enemies[i]
             if HasAura(Auras.OVERPOWER_PROC, unit) then
                 dangerous_cast = true
+                do break end
             end
         end
 
@@ -423,7 +425,7 @@ if not shared then shared = true
     end
 
     dangerousCasters = {}
-    casterTargetTimer = 0
+    casterTargetTimer = nil
     oldTarget = nil
     aura_event = "CHAT_MSG_SAY"
 
@@ -577,11 +579,11 @@ if not shared then shared = true
         Configuration.Shared.STEALTH_SPOT.ENABLED,
 
         function(_, _, _, _, _, _, object, _, _, _)
-            if not ValidUnit(objet, enemy) then return end
-
-            StopCasting()
-            Cast(Configuration.Shared.STEALTH_SPOT.SPELL_ID, object, enemy)
-            TargetUnit(found)
+             if Cast(Configuration.Shared.STEALTH_SPOT.SPELL_ID, object, enemy) then
+                 StopCasting()
+                 Cast(Configuration.Shared.STEALTH_SPOT.SPELL_ID, object, enemy)
+                 TargetUnit(found)
+            end
         end
     )
 
@@ -602,7 +604,7 @@ if not shared then shared = true
     -- I dont iterate objects to save some perfs
     RegisterEvents({"UNIT_MAXHEALTH"}, nil, Configuration.Shared.FAKECAST_INTERRUPTS,
         function(_, _, unit, _, _, _, _, _, _, _, _, _, _, _, _)
-            if not MeleeRange(unit) or not ValidUnit(unit, enemy) then return end
+            if not ValidUnit(unit, enemy) then return end
 
             local object = WorldObjects[UnitName(unit)]
             local hold = Warriors[object]
@@ -627,7 +629,7 @@ if not shared then shared = true
             end
 
             -- if equipped 2 weapons or interrupts not on cd, we dont stopcasting
-            if (unitHealth <= lastHealth and not firstime) or (hold.ITIME ~= nil and hold.ITIME + hold.IDURATION > GetTime()) then do return end end
+            if not MeleeRange(unit) or (unitHealth <= lastHealth and not firstime) or (hold.ITIME ~= nil and hold.ITIME + hold.IDURATION > GetTime()) then do return end end
 
             StopCasting()
             overpowered = GetTime()
@@ -659,9 +661,9 @@ if not shared then shared = true
         Configuration.Shared.FAKECAST_INTERRUPTS,
 
         function(event, type, srcName, targetGuid, targetName, spellId, object, x, y, z)
-            local hold = Warriors[object]
+            if not ValidUnit(object, enemy) or type ~= "SPELL_CAST_SUCCESS" then return end
 
-            if not ValidUnit(object, enemy) then return end
+            local hold = Warriors[object]
 
             if targetName == player_name or hold == nil or hold.ITIME == nil or
                     (spellId == WarriorSpells.BERZERK_STANCE and MeleeRange(object)
@@ -699,9 +701,10 @@ if not shared then shared = true
         Configuration.Shared.INTELLIGENT_BREAKS.ENABLED and Configuration.Shared.INTELLIGENT_BREAKS.STOPCASTING,
 
         function(_, _, _, _, _, _, object, _, _, _)
-            if not ValidUnit(object, enemy) or GetDistanceBetweenObjects(player, object) > 30 or not InLos(player, object) then return end
-
-            StopCasting()
+            if Cast(Configuration.Shared.INTELLIGENT_BREAKS.SPELL_BREAKER, object, enemy, true) then
+                StopCasting()
+                Cast(Configuration.Shared.INTELLIGENT_BREAKS.SPELL_BREAKER, object, enemy, true)
+            end
         end
     )
 

@@ -199,9 +199,19 @@ if not defined then
     -- Healing rotation for a given friendly unit
     function Heal(unit)
         if ShouldntCast() then
-            Cast(PriestSpells.PRAYER_OF_MENDING, unit, ally)
-            Cast(PriestSpells.RENEW, unit, ally)
-            return
+            if CdRemains(PriestSpells.SHIELD, false)
+                    and not HasAura(PriestSpells.SHIELD, unit)
+                    and not HasAura(Auras.WEAKENED_SOUL, unit) then
+                Cast(PriestSpells.SHIELD, unit, ally)
+            elseif CdRemains(PriestSpells.PRAYER_OF_MENDING, false)
+                    and not HasAura(Auras.PRAYER_OF_MENDING, unit)
+                    and HealthIsUnder(unit, 80) then
+                Cast(PriestSpells.PRAYER_OF_MENDING, unit, ally)
+            elseif not HasAura(PriestSpells.RENEW, unit) then
+                Cast(PriestSpells.RENEW, unit, ally)
+            end
+
+            do return end
         end
 
         if unit == pet then
