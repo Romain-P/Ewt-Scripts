@@ -116,6 +116,8 @@ if not shared then shared = true
 
     -- Return true if a given type is checked
     function ValidUnitType(unitType, unit)
+        if unit == nil then return false end
+
         local isEnemyUnit = UnitCanAttack(player, unit) == 1
         return (isEnemyUnit and unitType == enemy)
                 or (not isEnemyUnit and unitType == ally)
@@ -594,6 +596,8 @@ if not shared then shared = true
 
     -- Return true if the given unit got an buff that increases max health
     function HealthBuffed(unit)
+        if unit == nil then return end
+
         return HasAura(Auras.BLESSING_OF_KING ,unit) or
                 HasAura(Auras.GREATER_BLESSING_OF_KING, unit) or
                 HasAura(Auras.FORTITUDE, unit) or
@@ -901,13 +905,13 @@ if not shared then shared = true
         for i = 1, ObjectCount() do
             local object = ObjectWithIndex(i)
 
-            if object == nil or GetDistanceBetweenObjects(player, object) > 40 then return end
+            if object ~= nil and GetDistanceBetweenObjects(player, object) <= 40 then
+                local name = ObjectName(object)
+                local x, y, z = ObjectPosition(object)
 
-            local name = ObjectName(object)
-            local x, y, z = ObjectPosition(object)
-
-            for j = 1, #aCallbacks do
-                aCallbacks[j](object, name, x, y, z)
+                for j = 1, #aCallbacks do
+                    aCallbacks[j](object, name, x, y, z)
+                end
             end
         end
     end
@@ -918,13 +922,13 @@ if not shared then shared = true
 
             local object = ObjectWithIndex(i)
 
-            if object == nil then return end
+            if object ~= nil and GetDistanceBetweenObjects(player, object) <= 40 then
+                local objectName = ObjectName(object)
 
-            local objectName = ObjectName(object)
-
-            local hold = WorldObjects[objectName]
-            if hold ~= object then
-                WorldObjects[objectName] = object;
+                local hold = WorldObjects[objectName]
+                if hold ~= object then
+                    WorldObjects[objectName] = object;
+                end
             end
         end
     end

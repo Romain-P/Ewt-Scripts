@@ -69,7 +69,7 @@ if not defined then
             INTELLIGENT_BREAKS = {
                 ENABLED = true,
                 FILTERS = {filter_party_health},
-                STOPCASTING = true,
+                STOPCASTING = false,
                 SPELL_BREAKER = PriestSpells.MIND_SMOOTHE,
                 SPELL_LIST = {
                     WarriorSpells.REFLECT,
@@ -269,7 +269,7 @@ if not defined then
         Configuration.MASS_DISPEL.ENABLED,
 
         function(_, _, _, _, _, _, object, _, _, _)
-            if GetDistanceBetweenObjects(player, object) > 30 or not InLos(player, object) or not ValidUnit(object, enemy) then return end
+            if object == nil or not CdRemains(PriestSpells.MASS_DISPEL) or GetDistanceBetweenObjects(player, object) > 30 or not InLos(player, object) or not ValidUnit(object, enemy) then return end
             StopCasting()
         end
     )
@@ -300,10 +300,12 @@ if not defined then
         Configuration.SWD_CASTING_CONTROL.FILTERS,
         Configuration.SWD_CASTING_CONTROL.ENABLED,
             function(object, _, _, _, _)
-                if not ValidUnit(object, enemy) or GetDistanceBetweenObjects(player, object) > 36 then return end
+                if not ValidUnit(object, enemy) then return end
                 if not IsCastingOnMe(object) or not UnitCastingInfo(object) then return end
 
-                StopCasting()
+                if CdRemains(PriestSpells.SWD) then
+                    StopCasting()
+                end
 
                 if not Cast(PriestSpells.SWD, object, enemy) then
                     -- if the mage isnt in range, lf a closer target
