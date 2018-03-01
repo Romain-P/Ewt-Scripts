@@ -97,7 +97,9 @@ if not defined then
             -- A spell that gonna be casted on stealthed targets
             STEALTH_SPOT = {
                 ENABLED = true,
-                SPELL_ID = PriestSpells.SWD
+                SPELL_ID = PriestSpells.SWD,
+                -- used when a stealth rogue near you
+                SELF_AOE = PriestSpells.HOLY_NOVA
             },
 
             -- Dispel list on party

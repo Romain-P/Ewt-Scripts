@@ -791,7 +791,13 @@ if not shared then shared = true
 
             if not HasAuraInArray(SharedConfiguration.StealthSpells, object) then return end
 
-            Cast(Configuration.Shared.STEALTH_SPOT.SPELL_ID, object, enemy)
+            if HasAura(Auras.PRIEST_SHIELD, object) and Configuration.Shared.STEALTH_SPOT.SELF_AOE ~= nil and
+                GetDistanceBetweenObjects(player, object) <= 10 then
+                Cast(Configuration.Shared.STEALTH_SPOT.SELF_AOE, player, ally)
+            else
+                Cast(Configuration.Shared.STEALTH_SPOT.SPELL_ID, object, enemy)
+            end
+
             TargetUnit(object)
         end
     )

@@ -86,6 +86,7 @@ if not shared_spells then
         INNER_FIRE = 48168,
         FORTITUDE = 48161,
         ABOLISH_DISEASE = 552,
+        HOLY_NOVA = 48078
     }
 
     Auras = {
