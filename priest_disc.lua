@@ -3,7 +3,6 @@
 
 if not defined then
     defined = true
-    RunScript(ReadFile("script/shared_init.lua"))
 
     Configuration = {
         -- Common features between classes

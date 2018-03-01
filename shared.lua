@@ -168,6 +168,9 @@ if not shared then shared = true
 
     -- Return true if a given aura is present on a given unit
     function HasAura(id, unit)
+        if id == nil or SpellNames[id] == nil or unit == nil then
+            print("HasAura error: "..id.." - "..SpellNames[id].." - "..unit)
+        end
         return UnitDebuff(unit, SpellNames[id]) ~= nil or
                 select(11, UnitAura(unit, SpellNames[id])) == id
     end
@@ -915,7 +918,7 @@ if not shared then shared = true
 
             local object = ObjectWithIndex(i)
 
-            if object == nil or GetDistanceBetweenObjects(player, object) > 40 then return end
+            if object == nil then return end
 
             local objectName = ObjectName(object)
 
@@ -930,7 +933,7 @@ if not shared then shared = true
     sharedFrame:SetScript("OnEvent",
         function(self, event, arg1, type, srcGuid, srcName, arg2, targetGuid, targetName, arg3, spellId)
             local object = WorldObjects[srcName]
-            if object == nil or GetDistanceBetweenObjects(player, object) > 40 then return end
+            if object ~= nil and GetDistanceBetweenObjects(player, object) > 40 then return end
 
             local scripts = EventCallbacks[event]
 
@@ -973,7 +976,6 @@ if not shared then shared = true
             PlaySound("AuctionWindowClose", "master")
             return true
         else
-            print(objectTimer, analizeTimer, simpleTimer)
             print("[Shared-API] an error occured, please /reload")
             OnDisable()
             enabled = false
