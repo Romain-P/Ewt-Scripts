@@ -3,7 +3,7 @@
 
 if not shared then shared = true
     SharedConfiguration = {
-        melee_range = 7,
+        melee_range = 5,
         gcd_value = 1.5,
         latency = 0.15, -- latency in seconds
 
@@ -636,7 +636,7 @@ if not shared then shared = true
             end
 
             -- if equipped 2 weapons or interrupts not on cd, we dont stopcasting
-            if not MeleeRange(unit) or (unitHealth <= lastHealth and not firstime) or (hold.ITIME ~= nil and hold.ITIME + hold.IDURATION > GetTime()) then do return end end
+            if UnitTarget(unit) ~= player or not MeleeRange(unit) or (unitHealth <= lastHealth and not firstime) or (hold.ITIME ~= nil and hold.ITIME + hold.IDURATION > GetTime()) then return  end
 
             StopCasting()
             overpowered = GetTime()
@@ -705,9 +705,16 @@ if not shared then shared = true
     -- While a player has one of the defined auras in the list, it gonna try to cast the breaker spell
     ListenSpellsAndThen(Configuration.Shared.INTELLIGENT_BREAKS.SPELL_LIST,
         Configuration.Shared.INTELLIGENT_BREAKS.FILTERS,
-        Configuration.Shared.INTELLIGENT_BREAKS.ENABLED and Configuration.Shared.INTELLIGENT_BREAKS.STOPCASTING,
+        Configuration.Shared.INTELLIGENT_BREAKS.ENABLED and Configuration.Shared.INTELLIGENT_BREAKS.STOPCASTING.ENABLED,
 
         function(_, _, _, _, _, _, object, _, _, _)
+            local castingSpell = select(1, UnitCastInfo(player))
+
+            if castingSpell ~= nil and TableContains(Configuration.Shared.INTELLIGENT_BREAKS.STOPCASTING.BLACK_LIST, GetSpellId(castingSpell)) then
+                return
+            end
+
+
             if Cast(Configuration.Shared.INTELLIGENT_BREAKS.SPELL_BREAKER, object, enemy, true) then
                 StopCasting()
                 Cast(Configuration.Shared.INTELLIGENT_BREAKS.SPELL_BREAKER, object, enemy, true)
@@ -721,6 +728,14 @@ if not shared then shared = true
         Configuration.Shared.AUTO_FRIENDLY_DISPEL.ENABLED,
 
         function(_, unit)
+            local castingSpell = select(1, UnitCastInfo(player))
+
+            if not Configuration.Shared.AUTO_FRIENDLY_DISPEL.STOPCASTING.ENABLED and castingSpell ~= nil then return end
+
+            if castingSpell ~= nil and TableContains(Configuration.Shared.AUTO_FRIENDLY_DISPEL.STOPCASTING.BLACK_LIST, GetSpellId(castingSpell)) then
+                return
+            end
+
             Cast(Configuration.Shared.AUTO_FRIENDLY_DISPEL.SPELL_ID, unit, ally)
         end
     )
@@ -731,6 +746,14 @@ if not shared then shared = true
         Configuration.Shared.AUTO_ENEMY_DISPEL.ENABLED,
 
         function(_, object, _, _, _, _)
+            local castingSpell = select(1, UnitCastInfo(player))
+
+            if not Configuration.Shared.AUTO_ENEMY_DISPEL.STOPCASTING.ENABLED and castingSpell ~= nil then return end
+
+            if castingSpell ~= nil and TableContains(Configuration.Shared.AUTO_ENEMY_DISPEL.STOPCASTING.BLACK_LIST, GetSpellId(castingSpell)) then
+                return
+            end
+
             Cast(Configuration.Shared.AUTO_ENEMY_DISPEL.SPELL_ID, object, enemy)
         end
     )
@@ -743,7 +766,13 @@ if not shared then shared = true
         function(_, object, _, _, _, _)
             if not ValidUnit(object, enemy) then return end
 
-            if not Configuration.Shared.INTELLIGENT_BREAKS.STOPCASTING
+            local castingSpell = select(1, UnitCastInfo(player))
+
+            if castingSpell ~= nil and TableContains(Configuration.Shared.INTELLIGENT_BREAKS.STOPCASTING.BLACK_LIST, GetSpellId(castingSpell)) then
+                return
+            end
+
+            if not Configuration.Shared.INTELLIGENT_BREAKS.STOPCASTING.ENABLED
                     and UnitCastInfo(player) ~= nil then
                 return
             end
@@ -780,7 +809,7 @@ if not shared then shared = true
             if end_timestamp ~= nil then
                 local elapsed = 6 - (end_timestamp - GetTime())
 
-                if (elapsed < 0.5 + SharedConfiguration.latency) then
+                if (elapsed < 0.3 + SharedConfiguration.latency) then
                     if Configuration.Shared.FAKECAST_OVERPOWER.DEBUG then
                         print("Performed a fake cast for overpower from ".. UnitName(unit))
                     end

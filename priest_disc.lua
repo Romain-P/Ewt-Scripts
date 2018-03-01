@@ -69,7 +69,19 @@ if not defined then
             INTELLIGENT_BREAKS = {
                 ENABLED = true,
                 FILTERS = {filter_party_health},
-                STOPCASTING = false,
+                STOPCASTING = {
+                    ENABLED = true,
+
+                    --It won't stopcasting if you're casting a spell in the list below
+                    BLACK_LIST = {
+                        PriestSpells.PENANCE,
+                        PriestSpells.FLASH_HEAL,
+                        PriestSpells.BINDING_HEAL,
+                        PriestSpells.MIND_CONTROL,
+                        PriestSpells.HYMN_OF_HOPE,
+                        PriestSpells.DIVINE_HYMN
+                    }
+                },
                 SPELL_BREAKER = PriestSpells.MIND_SMOOTHE,
                 SPELL_LIST = {
                     WarriorSpells.REFLECT,
@@ -93,6 +105,17 @@ if not defined then
                 ENABLED = true,
                 FILTERS = {filter_party_health},
                 SPELL_ID = PriestSpells.DISPEL_MAGIC,
+                STOPCASTING = {
+                    ENABLED = true,
+
+                    --It won't stopcasting if you're casting a spell in the list below
+                    BLACK_LIST = {
+                        PriestSpells.PENANCE,
+                        PriestSpells.MIND_CONTROL,
+                        PriestSpells.HYMN_OF_HOPE,
+                        PriestSpells.DIVINE_HYMN
+                    }
+                },
                 AURA_LIST = {
                     Auras.HOJ,
                     Auras.REPENTANCE,
@@ -141,6 +164,17 @@ if not defined then
                 ENABLED = false,
                 FILTERS = {filter_party_health},
                 SPELL_ID = PriestSpells.DISPEL_MAGIC,
+                STOPCASTING = {
+                    ENABLED = true,
+
+                    --It won't stopcasting if you're casting a spell in the list below
+                    BLACK_LIST = {
+                        PriestSpells.PENANCE,
+                        PriestSpells.MIND_CONTROL,
+                        PriestSpells.HYMN_OF_HOPE,
+                        PriestSpells.DIVINE_HYMN
+                    }
+                },
                 AURA_LIST = {}
             },
         },
