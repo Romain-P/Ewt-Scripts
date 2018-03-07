@@ -90,6 +90,10 @@ if not shared_spells then
     }
 
     Auras = {
+        BLOOD_PLAGUE = 55078,
+        FROST_EVER = 55095,
+        EBON_PLAGUE = 51735,
+        ICY_CLUTCH = 50436,
         INFECTED_WOUNDS = 58181,
         UNSTABLE_AFFLICTION = 47843,
         ICE_CHAINS = 45524,

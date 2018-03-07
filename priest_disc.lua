@@ -18,7 +18,7 @@ if not defined then
             MAGE_MIRRORS_BYPASS = true,
 
             -- Fakecast rogue shadow step + kick / Warrior swap stance + pummel / shield equiped (bash)
-            FAKECAST_INTERRUPTS = true,
+            FAKECAST_INTERRUPTS = false,
 
             -- Check if a caster is really casting on you
             REAL_TARGET_CHECK = {
@@ -364,17 +364,23 @@ if not defined then
 
     -- Friendly dispel with dispel magic / abolish disease
     function Dispel(unit)
-        if HasAura(Auras.UNSTABLE_AFFLICTION, unit) or (not HasAura(Auras.INFECTED_WOUNDS, unit) and not HasAura(Auras.ICE_CHAINS, unit)) then
-            for _, b in ipairs(Configuration.Shared.AUTO_FRIENDLY_DISPEL.AURA_LIST) do
-                if HasAura(b, unit)
-                        and not HasAura(Auras.UNHOLY_BLIGHT, unit)
-                        and not HasAura(Auras.ABOLISH_DISEASE, unit) then
-                    Cast(PriestSpells.ABOLISH_DISEASE, unit, ally)
-                end
+        local magic = false
+        for i=1, #Configuration.Shared.AUTO_FRIENDLY_DISPEL.AURA_LIST do
+            local spell = Configuration.Shared.AUTO_FRIENDLY_DISPEL.AURA_LIST[i]
+            if HasAura(spell, unit) then
+                magic = true
+                do break end
             end
+        end
+        if (magic or HasAura(Auras.ICE_CHAINS, unit)) and not HasAura(Auras.UNSTABLE_AFFLICTION, unit) then
             Cast(PriestSpells.DISPEL_MAGIC, unit, ally)
-        else
-            Cast(PriestSpells.DISPEL_MAGIC, unit, ally)
+        elseif HasAura(Auras.DEVOURING_PLAGUE, unit) or
+                HasAura(Auras.INFECTED_WOUNDS, unit) or
+                HasAura(Auras.ICY_CLUTCH, unit) or
+                HasAura(Auras.EBON_PLAGUE, unit) or
+                HasAura(Auras.FROST_EVER, unit) or
+                HasAura(Auras.BLOOD_PLAGUE, unit) then
+            Cast(PriestSpells.ABOLISH_DISEASE, unit, ally)
         end
     end
 
