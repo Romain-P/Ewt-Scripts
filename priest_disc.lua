@@ -18,7 +18,7 @@ if not defined then
             MAGE_MIRRORS_BYPASS = true,
 
             -- Fakecast rogue shadow step + kick / Warrior swap stance + pummel / shield equiped (bash)
-            FAKECAST_INTERRUPTS = false,
+            FAKECAST_INTERRUPTS = true,
 
             -- Check if a caster is really casting on you
             REAL_TARGET_CHECK = {
