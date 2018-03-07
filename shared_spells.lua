@@ -90,6 +90,7 @@ if not shared_spells then
     }
 
     Auras = {
+        VAMPIRIC_TOUCH = 48160,
         BLOOD_PLAGUE = 55078,
         FROST_EVER = 55095,
         EBON_PLAGUE = 51735,

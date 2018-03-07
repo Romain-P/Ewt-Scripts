@@ -364,23 +364,23 @@ if not defined then
 
     -- Friendly dispel with dispel magic / abolish disease
     function Dispel(unit)
-        local magic = false
-        for i=1, #Configuration.Shared.AUTO_FRIENDLY_DISPEL.AURA_LIST do
-            local spell = Configuration.Shared.AUTO_FRIENDLY_DISPEL.AURA_LIST[i]
-            if HasAura(spell, unit) then
-                magic = true
-                do break end
+        for i=1,40 do local name, _, _, _, type, _, _, _, _, _, _ = UnitDebuff(unit, i)
+            if name ~= nil and type == "Magic" then
+                if not HasAura(Auras.UNSTABLE_AFFLICTION, unit) and not HasAura(Auras.VAMPIRIC_TOUCH, unit) then
+                    print(name)
+                    Cast(PriestSpells.DISPEL_MAGIC, unit, ally)
+                    do break end
+                end
             end
         end
-        if (magic or HasAura(Auras.ICE_CHAINS, unit)) and not HasAura(Auras.UNSTABLE_AFFLICTION, unit) then
-            Cast(PriestSpells.DISPEL_MAGIC, unit, ally)
-        elseif HasAura(Auras.DEVOURING_PLAGUE, unit) or
-                HasAura(Auras.INFECTED_WOUNDS, unit) or
-                HasAura(Auras.ICY_CLUTCH, unit) or
-                HasAura(Auras.EBON_PLAGUE, unit) or
-                HasAura(Auras.FROST_EVER, unit) or
-                HasAura(Auras.BLOOD_PLAGUE, unit) then
-            Cast(PriestSpells.ABOLISH_DISEASE, unit, ally)
+
+        if HasAura(Auras.ABOLISH_DISEASE, unit) then return end
+
+        for i=1,40 do local name, _, _, _, type, _, _, _, _, _, _ = UnitDebuff(unit, i)
+            if name ~= nil and type == "Disease" then
+                Cast(PriestSpells.ABOLISH_DISEASE, unit, ally)
+                do break end
+            end
         end
     end
 
