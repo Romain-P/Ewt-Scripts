@@ -24,7 +24,7 @@ if not launcher then
         ["WARLOCK"] = nil,
         ["DRUID"] = nil,
         ["HUNTER"] = nil,
-        ["PALADIN"] = nil,
+        ["PALADIN"] = "paladin_ret",
         ["DEATHKNIGHT"] = nil
     }
 

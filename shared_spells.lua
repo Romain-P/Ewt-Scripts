@@ -45,7 +45,18 @@ if not shared_spells then
     PaladinSpells = {
         REPENTENCE = 20066,
         HAND_OF_RECKONING = 62124,
-        JUDGEMENT_OF_WISDOM = 53408
+        JUDGEMENT_OF_WISDOM = 53408,
+        JUDGEMENT_OF_JUSTICE = 53407,
+        JUDGEMENT_OF_LIGHT = 20271,
+        DIVINE_STORM = 53385,
+        SAC = 64205,
+        RET_SAC = 6940,
+        CRUSADER_STRIKE = 35395,
+        EXORCISM = 48801,
+        HAMMER_OF_WRATH = 48806,
+        HOJ = 10308,
+        REPENTANCE = 20066,
+        CLEANSE = 4987
     }
 
     DkSpells = {
@@ -90,6 +101,8 @@ if not shared_spells then
     }
 
     Auras = {
+        TOTEM_SHEIL = 55277,
+        ICE_BARRIER = 43039,
         VAMPIRIC_TOUCH = 48160,
         BLOOD_PLAGUE = 55078,
         FROST_EVER = 55095,

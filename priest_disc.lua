@@ -41,6 +41,8 @@ if not defined then
                 USE_RANGE_AND_PET_BOTH = false,
                 USE_SPELLS = false,
 
+                AUTO_FACE_DIRECTION = true,
+
                 -- put your totem in order to break
                 TRACKED = {
                     "Tremor Totem",

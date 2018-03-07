@@ -253,7 +253,7 @@ if not shared then shared = true
 
             if filters then
                 for i=1, #filters do
-                    if not filters[i] then
+                    if not filters[i]() then
                         allowed = false
                         do break end
                     end
@@ -527,7 +527,9 @@ if not shared then shared = true
         local in_los = InLos(player, totem)
         local can_range = rangeSpell ~= nil and rangeSpell ~= false and GetDistanceBetweenObjects(player, totem) <= 30 and in_los
 
-        FaceDirection(totem)
+        if Configuration.Shared.TOTEM_TRACKER.AUTO_FACE_DIRECTION then
+            FaceDirection(totem)
+        end
 
         if use_melee and GetDistanceBetweenObjects(player, totem) <= 4 and in_los then
             RunMacroText("/startattack [@"..totem.."]")
@@ -577,7 +579,7 @@ if not shared then shared = true
 
         if not priority then
             local range = Configuration.Shared.TOTEM_TRACKER.USE_RANGE
-            if range ~= nil and UnitExists(target) then
+            if range ~= nil and range ~= false and UnitExists(target) then
                 Cast(range, target, enemy)
             end
             return
