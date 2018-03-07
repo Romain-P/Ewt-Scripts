@@ -567,7 +567,8 @@ if not shared then shared = true
 
                         return index == 1
                     end
-                elseif priority_index ~= nil and track_others and string.find(name, Configuration.Shared.TOTEM_TRACKER.TOTEM_OCCURENCE) ~= nil then
+                elseif priority_index == nil and track_others and string.find(name, Configuration.Shared.TOTEM_TRACKER.TOTEM_OCCURENCE) ~= nil then
+                    print("wtf")
                     priority = object
                 end
 
