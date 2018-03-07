@@ -75,6 +75,11 @@ See [Priest Configuration](https://github.com/Romain-P/Ewt-Scripts/blob/master/p
     -- Make this macro and press it to dot the unit, target in this example
     /script Dot(target)
 ```
+* `Dispel Rotation`: applies `Abolish Disease` or `Dispel Magic` with some logic
+```lua
+    -- unit can be player, party1 etc
+    /script Dispel(player)
+```
 * `Auto Instant Controls Break`: Swd all instant controls from any player on the map e.g gouge
 * `Auto Mass Dispel`: Automatically cast `Mass Dispel` on players with the defined aura list. This feature has to be reviewed to calculate a new position when the paladin isnt in direct `LoS` or `15 yards away` (15 yards of radius)
 * `Auto Casting Controls Break`: Swd all casting controls from any player on the map e.g sheep
