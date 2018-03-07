@@ -225,7 +225,7 @@ if not defined then
 
         if not HasAura(Auras.PRIEST_SHIELD, unit) and
                 not HasAura(Auras.ICE_BARRIER, unit) and
-                not HasAura(Auras.TOTEM_SHEIL, unit) then
+                not HasAura(Auras.TOTEM_SHIELD, unit) then
             Cast(PaladinSpells.JUDGEMENT_OF_LIGHT, unit, enemy)
         end
         Cast(PaladinSpells.DIVINE_STORM, player, ally)
@@ -240,9 +240,9 @@ if not defined then
                 HasAura(Auras.REFLECT, unit) or
                 HasAura(Auras.PROT_REFLECT, unit) then
             print("[Protected] "..UnitName(unit).." can't be attacked")
-            return
+            do return end
         end
-        CastSpell(spell, unit, enemy)
+        Cast(spell, unit, enemy)
     end
 
     RegisterAdvancedCallback(Configuration.AUTO_KILL_GROUNDING, nil,

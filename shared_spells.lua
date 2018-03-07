@@ -101,7 +101,7 @@ if not shared_spells then
     }
 
     Auras = {
-        TOTEM_SHEIL = 55277,
+        TOTEM_SHIELD = 55277,
         ICE_BARRIER = 43039,
         VAMPIRIC_TOUCH = 48160,
         BLOOD_PLAGUE = 55078,
