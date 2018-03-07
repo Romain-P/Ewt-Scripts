@@ -253,7 +253,7 @@ if not shared then shared = true
 
             if filters then
                 for i=1, #filters do
-                    if not filters[i]() then
+                    if not filters[i] then
                         allowed = false
                         do break end
                     end
