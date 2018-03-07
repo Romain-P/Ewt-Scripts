@@ -455,7 +455,7 @@ if not shared then shared = true
         end
 
         return (real and infos ~= nil and infos.isCastingOnMe) or
-                (not real and UnitTarget(target) == WorldObjects[player_name])
+                (not real and UnitTarget(target) == player_unit)
     end
 
     -- Real target related function
@@ -636,7 +636,7 @@ if not shared then shared = true
             end
 
             -- if equipped 2 weapons or interrupts not on cd, we dont stopcasting
-            if UnitTarget(unit) ~= player or not MeleeRange(unit) or (unitHealth <= lastHealth and not firstime) or (hold.ITIME ~= nil and hold.ITIME + hold.IDURATION > GetTime()) then return  end
+            if UnitTarget(unit) ~= player_unit or not MeleeRange(unit) or (unitHealth <= lastHealth and not firstime) or (hold.ITIME ~= nil and hold.ITIME + hold.IDURATION > GetTime()) then return  end
 
             StopCasting()
             overpowered = GetTime()
@@ -808,7 +808,7 @@ if not shared then shared = true
         Configuration.Shared.FAKECAST_OVERPOWER.ENABLED,
 
         function(_, _, unit, _, _, _, _, _, _, _, _, _, _, _, _)
-            if not ValidUnit(unit, enemy) then return end
+            if not ValidUnit(unit, enemy) or not InLos(unit) or UnitTarget(unit) ~= player_unit then return end
 
             local end_timestamp = select(7, UnitBuff(unit, SpellNames[Auras.OVERPOWER_PROC]))
 
