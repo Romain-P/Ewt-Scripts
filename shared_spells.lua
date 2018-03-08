@@ -101,6 +101,7 @@ if not shared_spells then
     }
 
     Auras = {
+        VIPER_STING = 3034,
         TOTEM_SHIELD = 55277,
         ICE_BARRIER = 43039,
         VAMPIRIC_TOUCH = 48160,

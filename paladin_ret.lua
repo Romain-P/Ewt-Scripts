@@ -103,6 +103,7 @@ if not defined then
                     BLACK_LIST = {}
                 },
                 AURA_LIST = {
+                    Auras.VIPER_STING,
                     Auras.HOJ,
                     Auras.REPENTANCE,
                     Auras.SEDUCTION,
@@ -174,6 +175,8 @@ if not defined then
 
         AUTO_KILL_GROUNDING = true,
 
+        AUTO_TAUNT_PETS = true,
+
         -- warnings when someone cast on you
         WARNING_SPELL_LIST = {
             Auras.Seduction_1,
@@ -198,6 +201,15 @@ if not defined then
 
     -- Hold spells that will be catched to get the real target of a caster
     addDangerousSpells(Configuration.WARNING_SPELL_LIST)
+
+    function Judgement(unit)
+        local class = select(2, UnitClass(unit))
+        if class == "ROGUE" or class == "DRUID" then
+            Cast(PaladinSpells.JUDGEMENT_OF_JUSTICE, unit, enemy)
+        else
+            Cast(PaladinSpells.JUDGEMENT_OF_LIGHT, unit, enemy)
+        end
+    end
 
     -- SWD Scatter, Hungering cold, blind, gouge, repentence
     ListenSpellsAndThen(Configuration.SAC_INSTANT_CONTROL.SPELL_LIST,
@@ -226,7 +238,7 @@ if not defined then
         if not HasAura(Auras.PRIEST_SHIELD, unit) and
                 not HasAura(Auras.ICE_BARRIER, unit) and
                 not HasAura(Auras.TOTEM_SHIELD, unit) then
-            Cast(PaladinSpells.JUDGEMENT_OF_LIGHT, unit, enemy)
+            Judgement(unit)
         end
         Cast(PaladinSpells.DIVINE_STORM, player, ally)
         Cast(PaladinSpells.CRUSADER_STRIKE, unit, enemy)
@@ -249,6 +261,17 @@ if not defined then
         function(object, name, x, y, z)
             if ValidUnit(object, enemy) and name == "Grounding Totem" then
                 TrackTotems()
+            end
+        end
+    )
+
+    RegisterAdvancedCallback(Configuration.AUTO_TAUNT_PETS, {function() return IsArena() end},
+        function(object, name, x, y, z)
+            if ValidUnit(object, enemy) then
+                if not IsArena() then return end
+                if not UnitIsUnit(object, arenapet1) and not UnitIsUnit(object, arenapet2) and
+                        not UnitIsUnit(object, arenapet3) then return end
+                Cast(PaladinSpells.HAND_OF_RECKONING, object, enemy)
             end
         end
     )

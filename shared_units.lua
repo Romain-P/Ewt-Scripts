@@ -18,6 +18,9 @@ if not shared_units then
     arena1 = "arena1"
     arena2 = "arena2"
     arena3 = "arena3"
+    arenapet1 = "arenapet1"
+    arenapet2 = "arenapet2"
+    arenapet3 = "arenapet3"
     player_name = UnitName(player)
     player_unit = GetObjectWithGUID(UnitGUID(player))
     player_class = select(2, UnitClass(player))
