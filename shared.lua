@@ -982,7 +982,9 @@ if not shared then shared = true
     sharedFrame:SetScript("OnEvent",
         function(self, event, arg1, type, srcGuid, srcName, arg2, targetGuid, targetName, arg3, spellId)
             local object = WorldObjects[srcName]
-            if object ~= nil and GetDistanceBetweenObjects(player, object) > 40 then return end
+			if (object == nil) then return end
+			
+            if GetDistanceBetweenObjects(player, object) > 40 then return end
 
             local scripts = EventCallbacks[event]
 
