@@ -150,6 +150,7 @@ if not shared then shared = true
         if CdRemains(id, gcd)
                 and ValidUnit(unit, type)
                 and InLos(player, unit)
+                and IsUsableSpell(SpellNames[id]) == 1
                 and (unit == player or IsSpellInRange(SpellNames[id], unit) == 1) then
             CastSpellByID(id, unit)
             return true
@@ -972,7 +973,11 @@ if not shared then shared = true
 
                 local hold = WorldObjects[objectName]
                 if hold ~= object then
-                    WorldObjects[objectName] = object;
+                    if WorldObjects[objectName] ~= nil then
+                        WorldObjects[objectName .. i] = object
+                    else
+                        WorldObjects[objectName] = object
+                    end
                 end
             end
         end

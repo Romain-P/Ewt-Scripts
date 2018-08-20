@@ -27,6 +27,8 @@ if not launcher then
         ["PALADIN"] = "paladin_ret",
         ["DEATHKNIGHT"] = nil
     }
+
+    session = all_scripts[player_class]
 end
 
 if session == nil then
