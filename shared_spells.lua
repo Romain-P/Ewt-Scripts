@@ -7,7 +7,9 @@ if not shared_spells then
     RaceSpells = {
         SHADOWMELD = 58984,
         SHOOT = 5019,
-        THROW = 2764
+        THROW = 2764,
+        HUMAN_TRINKET = 59752,
+        YOUR_SPELL = 10212121
     }
 
     HunterSpells = {
@@ -63,7 +65,8 @@ if not shared_spells then
         BLESSING_OF_KINGS = 20217,
         SEAL_OF_RIGHTEOUSNESS = 21084,
         FLASH_OF_LIGHT = 48785,
-        FREEDOM = 1044
+        FREEDOM = 1044,
+        DIVINE_PLEA = 54428
     }
 
     DkSpells = {

@@ -47,6 +47,16 @@ if not shared then shared = true
         return t1
     end
 
+    function TableSize(table)
+        local count = 0
+
+        for _,_ in pairs(table) do
+            count = count + 1
+        end
+
+        return count
+    end
+
     function TableContains(table, elem)
         for i=1, #table do
             if table[i] == elem then
@@ -191,30 +201,6 @@ if not shared then shared = true
         end
         return UnitDebuff(unit, SpellNames[id]) ~= nil or
                 select(11, UnitAura(unit, SpellNames[id])) == id
-    end
-
-    -- Targets and faces the nearest attackable enemy player
-    function TargetNearestEnemyPlayer()
-        local nearest = {object = nil, yards = nil}
-
-        for _, object in pairs(WorldObjects) do
-
-            if ValidUnit(object, enemy)
-                    and UnitCreatureFamily(object) == nil
-                    and not IsDamageProtected(object) then -- avoids pets but accepts dummies and players;)
-                local yards = GetDistanceBetweenObjects(player, object)
-
-                if (nearest.object == nil or yards < nearest.yards) then
-                    nearest.object = object
-                    nearest.yards = yards
-                end
-            end
-        end
-
-        if nearest.object ~= nil then
-            TargetUnit(nearest.object)
-            FaceDirection(nearest.object)
-        end
     end
 
     -- Return true if a target may be cast-interrupted
@@ -501,6 +487,31 @@ if not shared then shared = true
                 casterTargetTimer = GetTime()
             end
         )
+    end
+
+    -- Targets and faces the nearest attackable enemy player
+    function TargetNearestEnemyPlayer()
+        local nearest = {object = nil, yards = nil}
+
+        for _, object in pairs(WorldObjects) do
+
+            if ValidUnit(object, enemy)
+                    and UnitIsPlayer(object) == 1
+                    and UnitIsDead(object) == nil
+                    and not IsDamageProtected(object) then
+                local yards = GetDistanceBetweenObjects(player, object)
+
+                if (nearest.object == nil or yards < nearest.yards) then
+                    nearest.object = object
+                    nearest.yards = yards
+                end
+            end
+        end
+
+        if nearest.object ~= nil then
+            TargetUnit(nearest.object)
+            FaceDirection(nearest.object)
+        end
     end
 
     -- Real target related function
@@ -1036,17 +1047,15 @@ if not shared then shared = true
 
     callback_timers = {}
     function NewTimer(millis, func)
-        local instance = "timer" .. #callback_timers
-        local timer = CreateFrame("Frame", nil, UIParent)
-
+        local instance = "timer" .. TableSize(callback_timers)
         callback_timers[instance] = {
-            frame = timer,
+            frame = CreateFrame("Frame", nil, UIParent),
             callback = func,
             rate = millis / 1000,
             rate_counter = 0
         }
 
-        timer:SetScript("OnUpdate",
+        callback_timers[instance].frame:SetScript("OnUpdate",
             function(self, elapsed)
                 callback_timers[instance].rate_counter = callback_timers[instance].rate_counter + elapsed
 
@@ -1057,7 +1066,7 @@ if not shared then shared = true
             end
         )
 
-        timer:Show()
+        callback_timers[instance].frame:Show()
         return instance
     end
 
