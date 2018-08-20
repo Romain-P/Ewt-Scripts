@@ -34,6 +34,16 @@ if not shared_units then
         "party3pet"
     }
 
+    PartyAndMe = {
+        "player",
+        "party1",
+        "party2",
+        "party3",
+        "party1pet",
+        "party2pet",
+        "party3pet"
+    }
+
     ArenaEnemies = {
         "arenapet1",
         "arenapet2",

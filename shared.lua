@@ -158,6 +158,16 @@ if not shared then shared = true
         return false
     end
 
+    -- Return true if the buff was missing or uptime < as the given arg, and casts it on the player
+    function SelfBuff(id, uptime)
+        local endTimestamp = select(7, UnitBuff(player, SpellNames[id]))
+        if endTimestamp == nil or (uptime ~= nil and endTimestamp - GetTime() < uptime) then
+            Cast(id)
+            return true
+        end
+        return false
+    end
+
     -- Return the current player stance
     function GetStance()
         return GetShapeshiftForm()
@@ -169,13 +179,42 @@ if not shared then shared = true
         return dot ~= nil and dot - GetTime() >= 3
     end
 
+    function UnitPercentHealth(unit)
+        return UnitHealth(unit) / UnitHealthMax(unit) * 100
+    end
+
     -- Return true if a given aura is present on a given unit
     function HasAura(id, unit)
+        unit = unit or player
         if id == nil or SpellNames[id] == nil or unit == nil then
             print("HasAura error: "..id.." - "..SpellNames[id].." - "..unit)
         end
         return UnitDebuff(unit, SpellNames[id]) ~= nil or
                 select(11, UnitAura(unit, SpellNames[id])) == id
+    end
+
+    -- Targets and faces the nearest attackable enemy player
+    function TargetNearestEnemyPlayer()
+        local nearest = {object = nil, yards = nil}
+
+        for _, object in pairs(WorldObjects) do
+
+            if ValidUnit(object, enemy)
+                    and UnitCreatureFamily(object) == nil
+                    and not IsDamageProtected(object) then -- avoids pets but accepts dummies and players;)
+                local yards = GetDistanceBetweenObjects(player, object)
+
+                if (nearest.object == nil or yards < nearest.yards) then
+                    nearest.object = object
+                    nearest.yards = yards
+                end
+            end
+        end
+
+        if nearest.object ~= nil then
+            TargetUnit(nearest.object)
+            FaceDirection(nearest.object)
+        end
     end
 
     -- Return true if a target may be cast-interrupted
@@ -418,15 +457,6 @@ if not shared then shared = true
             MoveForwardStop()
         elseif UnitCastingInfo(player) ~= nil then
             SpellStopCasting()
-        end
-    end
-
-    function stopTimers(timers)
-        for i=1, #timers do
-            local timer = timers[i]
-            if timer ~= nil then
-                StopTimer(timer)
-            end
         end
     end
 
@@ -912,7 +942,7 @@ if not shared then shared = true
     -- Register when the player /reload or logout to remove timers
     RegisterEvents({"PLAYER_LOGIN", "PLAYER_LOGOUT"}, nil, true,
         function(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _)
-            stopTimers({objectTimer, analizeTimer, simpleTimer})
+            OnDisable()
         end
     )
 
@@ -1004,6 +1034,46 @@ if not shared then shared = true
         end
     )
 
+    callback_timers = {}
+    function NewTimer(millis, func)
+        local instance = "timer" .. #callback_timers
+        local timer = CreateFrame("Frame", nil, UIParent)
+
+        callback_timers[instance] = {
+            frame = timer,
+            callback = func,
+            rate = millis / 1000,
+            rate_counter = 0
+        }
+
+        timer:SetScript("OnUpdate",
+            function(self, elapsed)
+                callback_timers[instance].rate_counter = callback_timers[instance].rate_counter + elapsed
+
+                if enabled and callback_timers[instance].rate_counter > callback_timers[instance].rate then
+                    callback_timers[instance].callback()
+                    callback_timers[instance].rate_counter = 0
+                end
+            end
+        )
+
+        timer:Show()
+        return instance
+    end
+
+    function DeleteTimer(timer)
+        callback_timers[timer].frame:Hide()
+    end
+
+    function stopTimers(timers)
+        for i=1, #timers do
+            local timer = timers[i]
+            if timer ~= nil then
+                DeleteTimer(timer)
+            end
+        end
+    end
+
     function OnDisable()
         sharedFrame:UnregisterAllEvents()
         sharedFrame:RegisterEvent(aura_event)
@@ -1015,9 +1085,9 @@ if not shared then shared = true
     end
 
     function OnEnable()
-        objectTimer = CreateTimer(500, RefreshObjects)
-        analizeTimer = CreateTimer(20, AnalizeWorld)
-        simpleTimer = CreateTimer(20, SimpleLoop)
+        objectTimer = NewTimer(500, RefreshObjects)
+        analizeTimer = NewTimer(20, AnalizeWorld)
+        simpleTimer = NewTimer(20, SimpleLoop)
 
         for k,_ in pairs(EventCallbacks) do
            sharedFrame:RegisterEvent(k)
@@ -1025,7 +1095,6 @@ if not shared then shared = true
 
         SetupRealTargetFeature()
 
-        if (spells_enabled == nil) then print("lol") end
         if objectTimer ~= nil and analizeTimer ~= nil and simpleTimer ~= nil and spells_enabled then
             print("[Shared-API] successfully enabled")
             print("["..Configuration.Shared.SCRIPT_NAME.."] is running")
@@ -1035,7 +1104,7 @@ if not shared then shared = true
             print("[Shared-API] an error occured, please /reload")
             OnDisable()
             enabled = false
-            return falseaz
+            return false
         end
     end
 end

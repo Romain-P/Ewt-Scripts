@@ -49,6 +49,7 @@ if not shared_spells then
         JUDGEMENT_OF_JUSTICE = 53407,
         JUDGEMENT_OF_LIGHT = 20271,
         DIVINE_STORM = 53385,
+        DIVINE_SHIELD = 642,
         SAC = 64205,
         RET_SAC = 6940,
         CRUSADER_STRIKE = 35395,
@@ -56,7 +57,13 @@ if not shared_spells then
         HAMMER_OF_WRATH = 48806,
         HOJ = 10308,
         REPENTANCE = 20066,
-        CLEANSE = 4987
+        CLEANSE = 4987,
+        SACRED_SHIELD = 53601,
+        RIGHTEOUS_FURY = 25780,
+        BLESSING_OF_KINGS = 20217,
+        SEAL_OF_RIGHTEOUSNESS = 21084,
+        FLASH_OF_LIGHT = 48785,
+        FREEDOM = 1044
     }
 
     DkSpells = {
@@ -101,6 +108,9 @@ if not shared_spells then
     }
 
     Auras = {
+        GNAW = 47481,
+        BASH = 8983,
+        KIDNEY_SHOT = 8643,
         VIPER_STING = 3034,
         TOTEM_SHIELD = 55277,
         ICE_BARRIER = 43039,
@@ -210,6 +220,7 @@ if not shared_spells then
         MAGIC_SHIELD = 48707,
         PRIEST_SHIELD = 48066,
         REFLECT = 23920,
-        PROT_REFLECT = 59725
+        PROT_REFLECT = 59725,
+        THE_ART_OF_WAR = 59578
     }
 end
