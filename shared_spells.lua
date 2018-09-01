@@ -64,6 +64,9 @@ if not shared_spells then
         RIGHTEOUS_FURY = 25780,
         BLESSING_OF_KINGS = 20217,
         SEAL_OF_RIGHTEOUSNESS = 21084,
+        SEAL_OF_VENGENCE = 31801,
+        SEAL_OF_COMMAND = 20375,
+        SEAL_OF_JUSTICE = 20164,
         FLASH_OF_LIGHT = 48785,
         FREEDOM = 1044,
         DIVINE_PLEA = 54428

@@ -160,7 +160,7 @@ if not shared then shared = true
         if CdRemains(id, gcd)
                 and ValidUnit(unit, type)
                 and InLos(player, unit)
-                and IsUsableSpell(SpellNames[id]) == 1
+                --and IsUsableSpell(SpellNames[id]) == 1
                 and (unit == player or IsSpellInRange(SpellNames[id], unit) == 1) then
             CastSpellByID(id, unit)
             return true
@@ -446,48 +446,7 @@ if not shared then shared = true
         end
     end
 
-    dangerousCasters = {}
-    casterTargetTimer = nil
-    oldTarget = nil
     aura_event = "CHAT_MSG_SAY"
-
-    -- Return true if the given unit is casting on you
-    function IsCastingOnMe(unit)
-        if not ValidUnit(unit, enemy) then return end
-
-        local infos
-        local real = Configuration.Shared.REAL_TARGET_CHECK.ENABLED
-
-        if real then
-            local cpy = {}
-            TableConcat(cpy, dangerousCasters)
-
-            for k,_ in pairs(cpy) do
-                if UnitCastInfo(k) == nil then
-                    dangerousCasters[k] = nil
-                end
-            end
-
-            infos = dangerousCasters[unit]
-        end
-
-        return (real and infos ~= nil and infos.isCastingOnMe) or
-                (not real and UnitTarget(target) == player_unit)
-    end
-
-    -- Real target related function
-    function SetupRealTargetFeature()
-        ListenSpellsAndThen(dangerousSpells, nil, Configuration.Shared.REAL_TARGET_CHECK.ENABLED,
-            function(event, type, srcName, targetGuid, targetName, spellId, object, x, y, z)
-                if type ~= "SPELL_CAST_START" or not ValidUnit(object, enemy) then return end
-
-                oldTarget = WorldObjects[current_target]
-                ClearTarget()
-                dangerousCasters[object] = {isCastingOnMe = false}
-                casterTargetTimer = GetTime()
-            end
-        )
-    end
 
     -- Targets and faces the nearest attackable enemy player
     function TargetNearestEnemyPlayer()
@@ -513,50 +472,6 @@ if not shared then shared = true
             FaceDirection(nearest.object)
         end
     end
-
-    -- Real target related function
-    function RetrieveOldTarget()
-        if casterTargetTimer ~= nil then
-            if oldTarget ~= nil then
-                TargetUnit(oldTarget)
-            end
-            casterTargetTimer = nil
-            oldTarget = nil
-        end
-    end
-
-    -- Real target related function
-    function RealTargetCheck()
-        if not Configuration.Shared.REAL_TARGET_CHECK.ENABLED
-                or current_target == nil
-                or casterTargetTimer == nil then return end
-
-        local potential = WorldObjects[current_target]
-        local isCasting = UnitCastInfo(potential) ~= nil
-        local dangerous = dangerousCasters[potential] ~= nil and isCasting
-        local timein = GetTime() - casterTargetTimer < 0.01
-
-        if dangerous and timein then
-            dangerousCasters[potential].isCastingOnMe = true
-            RetrieveOldTarget()
-
-            if Configuration.Shared.REAL_TARGET_CHECK.SOUND then
-                PlaySound("RaidWarning", "master")
-            end
-            if Configuration.Shared.REAL_TARGET_CHECK.TEXT then
-                printWarning("BE CAREFUL, CAST ON YOU")
-            end
-        elseif (not timein or not isCasting) and dangerousCasters[potential] ~= nil then
-            dangerousCasters[potential] = nil
-        end
-    end
-
-    -- Real target related function
-    RegisterSimpleCallback(Configuration.Shared.REAL_TARGET_CHECK.ENABLED, nil,
-        function()
-            RetrieveOldTarget()
-        end
-    )
 
     -- Rotation for break tracked totems
     function TotemBreakRotation(totem)
@@ -894,8 +809,6 @@ if not shared then shared = true
 
             current_target = new_one
 
-            RealTargetCheck()
-
             local retarget_mage = mage_used_mirrors ~= nil
                     and UnitName(mage_used_mirrors.unit) == last_target
                     and GetTime() - mage_used_mirrors.time < 5
@@ -980,6 +893,61 @@ if not shared then shared = true
         end
     )
 
+    function split_str(str, sep)
+        local sep, fields = sep or ":", {}
+        local pattern = string.format("([^%s]+)", sep)
+        str:gsub(pattern, function(c) fields[#fields+1] = c end)
+        return fields
+    end
+
+    SMSG = {
+        SPELL_START = 0x131
+    }
+
+    casters_target = {}
+    ewt_cb = nil
+
+    function ListenPackets()
+        ewt_cb = AddPacketCallback("recv", SMSG.SPELL_START,
+            function(data)
+                local cpy = "" .. data
+                local bytes = split_str(cpy, " ")
+                local size = #bytes
+                local base = "0x0000000000"
+
+                local target_guid = base .. bytes[size - 4] .. bytes[size - 5] .. bytes[size - 6]
+                local caster_guid = base .. bytes[6] .. bytes[5] .. bytes[4]
+
+                local target_unit = GetObjectWithGUID(target_guid)
+                local caster, _ = UnitName(GetObjectWithGUID(caster_guid))
+
+                casters_target[caster] = target_unit
+            end
+        )
+    end
+
+    -- Return true if the given unit is casting on you
+    function IsCastingOnMe(unit)
+        local name, _ = UnitName(unit)
+        return casters_target[name] == player_unit
+    end
+
+    -- Register combat callbacks #ListenSpellsAndThen
+    RegisterEvents({"COMBAT_LOG_EVENT_UNFILTERED"}, nil, Configuration.Shared.REAL_TARGET_CHECK.ENABLED,
+        function(_, event, _, type, _, srcName, _, targetGuid, targetName, _, spellId, object, x, y, z)
+            if type == "SPELL_CAST_START"
+                    and TableContains(dangerousSpells, spellId)
+                    and IsCastingOnMe(object) then
+                if Configuration.Shared.REAL_TARGET_CHECK.SOUND then
+                    PlaySound("RaidWarning", "master")
+                end
+                if Configuration.Shared.REAL_TARGET_CHECK.TEXT then
+                    printWarning("BE CAREFUL, CAST ON YOU")
+                end
+            end
+        end
+    )
+
     -- Call registered simple callbacks
     function SimpleLoop()
         for i=1, #sCallbacks do
@@ -1005,6 +973,7 @@ if not shared then shared = true
 
     -- Refresh all objects table indexed by name
     function RefreshObjects()
+        WorldObjects = {}
         for i = 1, ObjectCount() do
 
             local object = ObjectWithIndex(i)
@@ -1086,6 +1055,7 @@ if not shared then shared = true
     function OnDisable()
         sharedFrame:UnregisterAllEvents()
         sharedFrame:RegisterEvent(aura_event)
+        RemovePacketCallback(ewt_cb)
         Warriors = {}
         stopTimers({objectTimer, analizeTimer, simpleTimer})
         print("[Shared-API] succesfully disabled")
@@ -1102,7 +1072,7 @@ if not shared then shared = true
            sharedFrame:RegisterEvent(k)
         end
 
-        SetupRealTargetFeature()
+        ListenPackets()
 
         if objectTimer ~= nil and analizeTimer ~= nil and simpleTimer ~= nil and spells_enabled then
             print("[Shared-API] successfully enabled")
