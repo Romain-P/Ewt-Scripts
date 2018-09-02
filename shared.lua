@@ -469,7 +469,7 @@ if not shared then shared = true
 
         if nearest.object ~= nil then
             TargetUnit(nearest.object)
-            FaceDirection(nearest.object)
+            FaceDirection(nearest.object, true)
         end
     end
 
@@ -485,7 +485,7 @@ if not shared then shared = true
         local can_range = rangeSpell ~= nil and rangeSpell ~= false and GetDistanceBetweenObjects(player, totem) <= 30 and in_los
 
         if Configuration.Shared.TOTEM_TRACKER.AUTO_FACE_DIRECTION then
-            FaceDirection(totem)
+            FaceDirection(totem, true)
         end
 
         if use_melee and GetDistanceBetweenObjects(player, totem) <= 4 and in_los then
@@ -863,13 +863,6 @@ if not shared then shared = true
         end
     )
 
-    -- Register when the player /reload or logout to remove timers
-    RegisterEvents({"PLAYER_LOGIN", "PLAYER_LOGOUT"}, nil, true,
-        function(_, _, _, _, _, _, _, _, _, _, _, _, _, _, _)
-            OnDisable()
-        end
-    )
-
     RegisterEvents({aura_event}, nil, true,
         function(_, _, aura, duration)
             if aura:find("%. %.%.") ~= nil then
@@ -919,7 +912,11 @@ if not shared then shared = true
                 local caster_guid = base .. bytes[6] .. bytes[5] .. bytes[4]
 
                 local target_unit = GetObjectWithGUID(target_guid)
-                local caster, _ = UnitName(GetObjectWithGUID(caster_guid))
+                local caster_unit = GetObjectWithGUID(caster_guid)
+
+                if caster_unit == nil or target_unit == nil then return end
+
+                local caster, _ = UnitName(caster_unit)
 
                 casters_target[caster] = target_unit
             end
@@ -996,17 +993,20 @@ if not shared then shared = true
     sharedFrame = CreateFrame("FRAME", nil, UIParent)
     sharedFrame:SetScript("OnEvent",
         function(self, event, arg1, type, srcGuid, srcName, arg2, targetGuid, targetName, arg3, spellId)
-            local object = WorldObjects[srcName]
-			if (object == nil) then return end
-			
-            if GetDistanceBetweenObjects(player, object) > 40 then return end
-
             local scripts = EventCallbacks[event]
 
             if scripts == nil then return end
 
-            local object = WorldObjects[srcName]
-            local x, y, z = ObjectPosition(object)
+            local object
+            local x, y, z
+
+            if srcName ~= nil then
+                object = WorldObjects[srcName]
+
+                if object ~= nil then
+                    x, y, z = ObjectPosition(object)
+                end
+            end
 
             for i=1, #scripts do
                 scripts[i](self, event, arg1, type, srcGuid, srcName, arg2, targetGuid, targetName, arg3, spellId, object, x,y,z)
@@ -1062,6 +1062,13 @@ if not shared then shared = true
         print("["..Configuration.Shared.SCRIPT_NAME.."] is stopped")
         PlaySound("TalentScreenClose", "master")
     end
+
+    -- Register when the player /reload or logout to remove timers
+    RegisterEvents({"PLAYER_LOGIN", "PLAYER_LOGOUT"}, nil, true,
+        function(...)
+            OnDisable()
+        end
+    )
 
     function OnEnable()
         objectTimer = NewTimer(500, RefreshObjects)
